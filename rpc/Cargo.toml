@@ -1,0 +1,13 @@
+[package]
+name = "hotstuff-rpc"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+serde = { version = "1", features = ["derive"] }
+async-trait = "0.1"
+jsonrpsee = { version = "0.24.3", features = ["server", "macros"] }
+thiserror = "1"

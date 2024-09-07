@@ -3,12 +3,14 @@ members = [
     "app",
     "consensus",
     "p2p",
+    "rpc",
 ]
 resolver = "2"
 
 [workspace.dependencies]
 hotstuff-consensus = { version = "0.1.0", path = "consensus" }
 hotstuff-p2p = { version = "0.1.0", path = "p2p" }
+hotstuff-rpc = { version = "0.1.0", path = "rpc" }
 
 [workspace.package]
 version = "0.1.0"
