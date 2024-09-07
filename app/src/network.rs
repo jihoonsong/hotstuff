@@ -1,28 +1,33 @@
-use crate::node::Node;
+use crate::config::NodeConfig;
 
 use futures::future::join_all;
-use hotstuff_p2p::Config;
-use std::net::SocketAddr;
+use hotstuff_node::Node;
 
 pub struct Network {
-    node_addresses: Vec<SocketAddr>,
+    node_configs: Vec<NodeConfig>,
 }
 
 impl Network {
-    pub fn new(config: Config) -> Self {
-        Self {
-            node_addresses: config.node_addresses,
-        }
+    pub fn new(node_configs: Vec<NodeConfig>) -> Self {
+        Self { node_configs }
     }
 
     pub async fn run(self) {
-        join_all(self.node_addresses.iter().cloned().map(|address| {
-            let node: Node = Node::new(
-                address,
-                self.node_addresses
+        let p2p_addresses: Vec<_> = self
+            .node_configs
+            .iter()
+            .map(|node_config| node_config.p2p_address)
+            .collect();
+
+        join_all(self.node_configs.into_iter().map(|node_config| {
+            let node = Node::new(
+                node_config.identity,
+                node_config.p2p_address,
+                node_config.rpc_address,
+                p2p_addresses
                     .clone()
                     .into_iter()
-                    .filter(|peer| *peer != address)
+                    .filter(|p2p_address| *p2p_address != node_config.p2p_address)
                     .collect(),
             );
             tokio::spawn(node.run())

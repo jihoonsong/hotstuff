@@ -1,51 +1,69 @@
-use crate::Config;
-
 use futures::future::join_all;
-use futures::{SinkExt, StreamExt};
-use std::net::SocketAddr;
-use tokio::net::TcpStream;
-use tokio::time::{sleep, Duration};
-use tokio_util::bytes::Bytes;
-use tokio_util::codec::{Framed, LengthDelimitedCodec};
+use hotstuff_rpc::Transaction;
+use jsonrpsee::core::client::ClientT;
+use jsonrpsee::rpc_params;
+use jsonrpsee::ws_client::WsClientBuilder;
+use std::{net::SocketAddr, sync::Arc};
+use tokio::{
+    sync::Mutex,
+    time::{sleep, Duration},
+};
 use tracing::{debug, info};
 
 pub struct Client {
-    node_addresses: Vec<SocketAddr>,
+    nodes: Vec<SocketAddr>,
+    nonce: Arc<Mutex<u128>>,
 }
 
 impl Client {
-    pub fn new(config: Config) -> Self {
+    pub fn new(nodes: Vec<SocketAddr>) -> Self {
         Self {
-            node_addresses: config.node_addresses,
+            nodes,
+            nonce: Arc::new(Mutex::new(0)),
         }
     }
 
     pub async fn run(self) {
-        self.connect().await;
-    }
-
-    async fn connect(&self) {
-        join_all(self.node_addresses.iter().cloned().map(|address| {
-            tokio::spawn(async move {
-                debug!("Connecting to node at {address}");
-                let stream = loop {
-                    match TcpStream::connect(address).await {
-                        Ok(stream) => break stream,
-                        Err(e) => {
-                            debug!("Failed to connect to node at {address}: {e}. Retrying...");
-                            sleep(Duration::from_millis(100)).await;
-                        }
-                    }
-                };
-                info!("Successfully connected to node at {address}");
-
-                // Example of exchanging messages between client and node.
-                let mut framed = Framed::new(stream, LengthDelimitedCodec::new());
-                framed.send(Bytes::from("Hello from client")).await.unwrap();
-                let reply = framed.next().await.unwrap();
-                println!("reply: {:?}", reply);
-            })
+        join_all(self.nodes.into_iter().enumerate().map(|(index, node)| {
+            tokio::spawn(Self::send_transactions(
+                format!("ws://{}", node),
+                format!("transaction to node{}", index),
+                self.nonce.clone(),
+            ))
         }))
         .await;
+    }
+
+    async fn send_transactions(url: String, data: String, nonce: Arc<Mutex<u128>>) {
+        let client = WsClientBuilder::default()
+            .build(&url)
+            .await
+            .expect("Failed to build WsClientBuilder");
+
+        loop {
+            // Set transaction data. Nonce is shared across all transactions.
+            let mut nonce = nonce.lock().await;
+            let transaction = Transaction {
+                nonce: *nonce,
+                data: data.clone(),
+            };
+            *nonce += 1;
+            drop(nonce);
+            info!("client sends transaction: {:?}", transaction);
+
+            let response: String = loop {
+                match client
+                    .request("transaction_send", rpc_params![transaction.clone()])
+                    .await
+                {
+                    Ok(response) => break response,
+                    Err(e) => {
+                        debug!("Failed to send transaction to node at {url}: {e}. Retrying...");
+                        sleep(Duration::from_millis(100)).await;
+                    }
+                };
+            };
+            info!("client received response: {}", response);
+        }
     }
 }
