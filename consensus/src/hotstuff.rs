@@ -1,35 +1,35 @@
-use crate::handlers::HotStuffHandler;
-
-use hotstuff_p2p::Receiver;
-use std::net::SocketAddr;
+use hotstuff_p2p::HotStuffMessage;
 use tokio::sync::mpsc;
 use tracing::info;
 
+use crate::HotStuffConfig;
+
 pub struct HotStuff {
-    address: SocketAddr,
+    dispatcher: mpsc::Sender<HotStuffMessage>,
+    mailbox: mpsc::Receiver<HotStuffMessage>,
 }
 
 impl HotStuff {
-    pub fn new(address: SocketAddr) -> Self {
-        Self { address }
+    pub fn new(config: HotStuffConfig) -> Self {
+        let (dispatcher, mailbox) = mpsc::channel(config.mailbox_size);
+
+        Self {
+            dispatcher,
+            mailbox,
+        }
     }
 
-    pub async fn run(self) {
-        // Create MPSC channels for internal communication.
-        let (sender, mut _receiver) = mpsc::channel(128);
-
-        // Create a receiver communicating using tokio_util::Framed over TCP.
-        let receiver = Receiver::new(self.address, HotStuffHandler { sender });
-        let mut receiver_task = tokio::spawn(receiver.run());
-
-        match tokio::try_join!(&mut receiver_task) {
-            Ok(_) => {
-                info!("All tasks completed");
-            }
-            Err(e) => {
-                info!(error=?e, "An error occured while running tasks");
-                receiver_task.abort();
+    pub async fn run(mut self) {
+        while let Some(message) = self.mailbox.recv().await {
+            match message {
+                HotStuffMessage::Dummy { data } => {
+                    info!("Received dummy message: {:?}", data);
+                }
             }
         }
+    }
+
+    pub fn mailbox(&self) -> mpsc::Sender<HotStuffMessage> {
+        self.dispatcher.clone()
     }
 }

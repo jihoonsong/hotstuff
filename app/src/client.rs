@@ -10,15 +10,17 @@ use tokio::{
 };
 use tracing::{debug, info};
 
+use crate::config::ClientConfig;
+
 pub struct Client {
     nodes: Vec<SocketAddr>,
     nonce: Arc<Mutex<u128>>,
 }
 
 impl Client {
-    pub fn new(nodes: Vec<SocketAddr>) -> Self {
+    pub fn new(config: ClientConfig) -> Self {
         Self {
-            nodes,
+            nodes: config.nodes,
             nonce: Arc::new(Mutex::new(0)),
         }
     }

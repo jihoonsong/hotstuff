@@ -1,15 +1,17 @@
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
 use std::net::SocketAddr;
 
-use crate::{RPCError, TransactionApi, TransactionServer};
+use crate::{RPCError, RpcConfig, TransactionApi, TransactionServer};
 
 pub struct RpcServer {
     address: SocketAddr,
 }
 
 impl RpcServer {
-    pub fn new(address: SocketAddr) -> Self {
-        Self { address }
+    pub fn new(config: RpcConfig) -> Self {
+        Self {
+            address: config.address,
+        }
     }
 
     pub async fn build(&self) -> Result<ServerHandle, RPCError> {

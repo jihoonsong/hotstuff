@@ -1,27 +1,21 @@
 use futures::future::join_all;
-use hotstuff_node::Node;
-
-use crate::config::NodeConfig;
+use hotstuff_node::{Node, NodeConfig};
 
 pub struct Network {
-    node_configs: Vec<NodeConfig>,
+    nodes: Vec<NodeConfig>,
 }
 
 impl Network {
-    pub fn new(node_configs: Vec<NodeConfig>) -> Self {
-        Self { node_configs }
+    pub fn new(nodes: Vec<NodeConfig>) -> Self {
+        Self { nodes }
     }
 
     pub async fn run(self) {
-        join_all(self.node_configs.into_iter().map(|node_config| {
-            let node = Node::new(
-                node_config.identity,
-                node_config.p2p_address,
-                node_config.rpc_address,
-                node_config.peer_addresses.unwrap_or(vec![]),
-            );
-            tokio::spawn(node.run())
-        }))
+        join_all(
+            self.nodes
+                .into_iter()
+                .map(|node| tokio::spawn(Node::new(node).run())),
+        )
         .await;
     }
 }

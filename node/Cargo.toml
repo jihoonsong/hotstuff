@@ -7,8 +7,10 @@ rust-version.workspace = true
 
 [dependencies]
 hotstuff-consensus = { workspace = true }
+hotstuff-p2p = { workspace = true }
 hotstuff-rpc = { workspace = true }
 
+serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
 jsonrpsee = { version = "0.24.3",  features = [ "ws-client"] }
 tracing = "0.1"

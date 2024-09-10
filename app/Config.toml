@@ -1,22 +1,41 @@
+[client]
+nodes = ["127.0.0.1:50011", "127.0.0.1:50012", "127.0.0.1:50013", "127.0.0.1:50014"]
+
 [[nodes]]
 identity = "node1"
-p2p_address = "127.0.0.1:30011"
-rpc_address = "127.0.0.1:50011"
-peer_addresses = ["127.0.0.1:30012", "127.0.0.1:30013", "127.0.0.1:30014"]
+hotstuff.mailbox_size = 256
+rpc.address = "127.0.0.1:50011"
+network.coordinator.max_peers = 4
+network.coordinator.mailbox_size = 256
+network.coordinator.peers = ["127.0.0.1:30012", "127.0.0.1:30013", "127.0.0.1:30014"]
+network.dialer.tick = 5
+network.listener.address = "127.0.0.1:30011"
 
 [[nodes]]
 identity = "node2"
-p2p_address = "127.0.0.1:30012"
-rpc_address = "127.0.0.1:50012"
-peer_addresses = ["127.0.0.1:30013", "127.0.0.1:30014"]
+hotstuff.mailbox_size = 256
+rpc.address = "127.0.0.1:50012"
+network.coordinator.max_peers = 4
+network.coordinator.mailbox_size = 256
+network.coordinator.peers = ["127.0.0.1:30013", "127.0.0.1:30014"]
+network.dialer.tick = 5
+network.listener.address = "127.0.0.1:30012"
 
 [[nodes]]
 identity = "node3"
-p2p_address = "127.0.0.1:30013"
-rpc_address = "127.0.0.1:50013"
-peer_addresses = ["127.0.0.1:30014"]
+hotstuff.mailbox_size = 256
+rpc.address = "127.0.0.1:50013"
+network.coordinator.max_peers = 4
+network.coordinator.mailbox_size = 256
+network.coordinator.peers = [ "127.0.0.1:30014"]
+network.dialer.tick = 5
+network.listener.address = "127.0.0.1:30013"
 
 [[nodes]]
 identity = "node4"
-p2p_address = "127.0.0.1:30014"
-rpc_address = "127.0.0.1:50014"
+hotstuff.mailbox_size = 256
+rpc.address = "127.0.0.1:50014"
+network.coordinator.max_peers = 4
+network.coordinator.mailbox_size = 256
+network.dialer.tick = 5
+network.listener.address = "127.0.0.1:30014"

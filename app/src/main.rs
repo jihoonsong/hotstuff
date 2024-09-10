@@ -30,7 +30,7 @@ async fn run() {
     let config: Config = toml::from_str(&config_content).expect("Failed to parse config");
 
     // Start client.
-    let client = Client::new(config.nodes.iter().map(|node| node.rpc_address).collect());
+    let client = Client::new(config.client);
     let mut client_task = tokio::spawn(client.run());
 
     // Start network.
