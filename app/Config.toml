@@ -2,16 +2,19 @@
 identity = "node1"
 p2p_address = "127.0.0.1:30011"
 rpc_address = "127.0.0.1:50011"
+peer_addresses = ["127.0.0.1:30012", "127.0.0.1:30013", "127.0.0.1:30014"]
 
 [[nodes]]
 identity = "node2"
 p2p_address = "127.0.0.1:30012"
 rpc_address = "127.0.0.1:50012"
+peer_addresses = ["127.0.0.1:30013", "127.0.0.1:30014"]
 
 [[nodes]]
 identity = "node3"
 p2p_address = "127.0.0.1:30013"
 rpc_address = "127.0.0.1:50013"
+peer_addresses = ["127.0.0.1:30014"]
 
 [[nodes]]
 identity = "node4"

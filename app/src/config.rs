@@ -11,4 +11,7 @@ pub struct NodeConfig {
     pub identity: String,
     pub p2p_address: SocketAddr,
     pub rpc_address: SocketAddr,
+    pub peer_addresses: Option<Vec<SocketAddr>>,
+}
+
 }

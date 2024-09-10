@@ -1,7 +1,7 @@
-use crate::config::NodeConfig;
-
 use futures::future::join_all;
 use hotstuff_node::Node;
+
+use crate::config::NodeConfig;
 
 pub struct Network {
     node_configs: Vec<NodeConfig>,
@@ -13,22 +13,12 @@ impl Network {
     }
 
     pub async fn run(self) {
-        let p2p_addresses: Vec<_> = self
-            .node_configs
-            .iter()
-            .map(|node_config| node_config.p2p_address)
-            .collect();
-
         join_all(self.node_configs.into_iter().map(|node_config| {
             let node = Node::new(
                 node_config.identity,
                 node_config.p2p_address,
                 node_config.rpc_address,
-                p2p_addresses
-                    .clone()
-                    .into_iter()
-                    .filter(|p2p_address| *p2p_address != node_config.p2p_address)
-                    .collect(),
+                node_config.peer_addresses.unwrap_or(vec![]),
             );
             tokio::spawn(node.run())
         }))
