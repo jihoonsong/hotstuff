@@ -21,12 +21,12 @@ impl RpcServer {
         let mut module = RpcModule::new(());
         module
             .merge(transaction_api.into_rpc())
-            .map_err(|e| RPCError::MergeError(String::from("transaction_api"), e))?;
+            .map_err(|e| RPCError::Merge(String::from("transaction_api"), e))?;
 
         let server = Server::builder()
             .build(self.address)
             .await
-            .map_err(|e| RPCError::ServerError(self.address, e))?;
+            .map_err(|e| RPCError::Server(self.address, e))?;
         let server_handle = server.start(module);
 
         Ok(server_handle)
