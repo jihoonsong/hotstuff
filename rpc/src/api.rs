@@ -1,7 +1,7 @@
-use crate::types::Transaction;
-
 use async_trait::async_trait;
 use jsonrpsee::{core::RpcResult, proc_macros::rpc};
+
+use crate::Transaction;
 
 #[rpc(server, namespace = "transaction")]
 pub trait Transaction {

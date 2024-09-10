@@ -1,10 +1,7 @@
-use crate::{
-    api::{TransactionApi, TransactionServer},
-    error::RPCError,
-};
-
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
 use std::net::SocketAddr;
+
+use crate::{RPCError, TransactionApi, TransactionServer};
 
 pub struct RpcServer {
     address: SocketAddr,
