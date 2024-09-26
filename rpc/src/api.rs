@@ -6,7 +6,7 @@ use crate::Transaction;
 #[rpc(server, namespace = "transaction")]
 pub trait Transaction {
     #[method(name = "send")]
-    async fn send_transacrion(&self, request: Transaction) -> RpcResult<String>;
+    async fn send_transaction(&self, request: Transaction) -> RpcResult<String>;
 }
 
 pub struct TransactionApi {}
@@ -19,7 +19,7 @@ impl TransactionApi {
 
 #[async_trait]
 impl TransactionServer for TransactionApi {
-    async fn send_transacrion(&self, request: Transaction) -> RpcResult<String> {
+    async fn send_transaction(&self, request: Transaction) -> RpcResult<String> {
         Ok(format!("send_transaction received {:?}", request))
     }
 }
