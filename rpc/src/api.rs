@@ -1,25 +1,38 @@
-use async_trait::async_trait;
 use jsonrpsee::{core::RpcResult, proc_macros::rpc};
+use jsonrpsee_types::ErrorObject;
+use tracing::info;
 
-use crate::Transaction;
+use crate::{
+    HotStuffApiError, HotStuffApis, HotStuffError, HotStuffTransaction, TransactionRequest,
+};
 
-#[rpc(server, namespace = "transaction")]
-pub trait Transaction {
-    #[method(name = "send")]
-    async fn send_transaction(&self, request: Transaction) -> RpcResult<String>;
-}
+pub struct HotStuffApi {}
 
-pub struct TransactionApi {}
-
-impl TransactionApi {
+impl HotStuffApi {
     pub fn new() -> Self {
         Self {}
     }
 }
+#[rpc(server, namespace = "hotstuff")]
+pub trait HotStuffApi {
+    #[method(name = "sendTransaction")]
+    async fn send_transaction(&self, request: TransactionRequest) -> RpcResult<String>;
+}
 
-#[async_trait]
-impl TransactionServer for TransactionApi {
-    async fn send_transaction(&self, request: Transaction) -> RpcResult<String> {
-        Ok(format!("send_transaction received {:?}", request))
+#[async_trait::async_trait]
+impl<T> HotStuffApiServer for T
+where
+    T: HotStuffApis,
+    ErrorObject<'static>: From<T::Error>,
+{
+    async fn send_transaction(&self, request: TransactionRequest) -> RpcResult<String> {
+        info!("send_transaction: {:?}", request);
+        Ok(HotStuffTransaction::send_transaction(self, request).await?)
     }
 }
+
+impl HotStuffError for HotStuffApi {
+    type Error = HotStuffApiError;
+}
+
+impl HotStuffTransaction for HotStuffApi {}

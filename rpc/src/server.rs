@@ -1,7 +1,7 @@
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
 use std::net::SocketAddr;
 
-use crate::{RPCError, RpcConfig, TransactionApi, TransactionServer};
+use crate::{HotStuffApi, HotStuffApiServer, RpcConfig, RpcError};
 
 pub struct RpcServer {
     address: SocketAddr,
@@ -14,18 +14,18 @@ impl RpcServer {
         }
     }
 
-    pub async fn build(&self) -> Result<ServerHandle, RPCError> {
-        let transaction_api = TransactionApi::new();
+    pub async fn build(&self) -> Result<ServerHandle, RpcError> {
+        let hotstuff_api = HotStuffApi::new();
 
         let mut module = RpcModule::new(());
         module
-            .merge(transaction_api.into_rpc())
-            .map_err(|e| RPCError::Merge(String::from("transaction_api"), e))?;
+            .merge(hotstuff_api.into_rpc())
+            .map_err(|e| RpcError::Merge(String::from("hotstuff_api"), e))?;
 
         let server = Server::builder()
             .build(self.address)
             .await
-            .map_err(|e| RPCError::Server(self.address, e))?;
+            .map_err(|e| RpcError::Server(self.address, e))?;
         let server_handle = server.start(module);
 
         Ok(server_handle)

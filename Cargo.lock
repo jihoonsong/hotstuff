@@ -405,9 +405,11 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "jsonrpsee",
+ "jsonrpsee-types",
  "serde",
  "thiserror",
  "tokio",
+ "tracing",
 ]
 
 [[package]]
