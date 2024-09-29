@@ -1,9 +1,9 @@
+use hotstuff_consensus::HotStuffMessage;
 use tokio::sync::mpsc;
 use tracing::info;
 
 use crate::{
-    Coordinator, CoordinatorConfig, Dialer, DialerConfig, HotStuffMessage, Listener,
-    ListenerConfig, NetworkConfig,
+    Coordinator, CoordinatorConfig, Dialer, DialerConfig, Listener, ListenerConfig, NetworkConfig,
 };
 
 pub struct Network {

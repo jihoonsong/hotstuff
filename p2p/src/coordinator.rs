@@ -1,4 +1,5 @@
 use futures::{stream::SplitSink, StreamExt};
+use hotstuff_consensus::HotStuffMessage;
 use std::{collections::HashMap, net::SocketAddr};
 use tokio::{io::AsyncWriteExt, net::TcpStream, sync::mpsc};
 use tokio_util::{
@@ -7,7 +8,7 @@ use tokio_util::{
 };
 use tracing::info;
 
-use crate::{CoordinatorConfig, CoordinatorMessage, HotStuffMessage, Peer};
+use crate::{CoordinatorConfig, CoordinatorMessage, Peer};
 
 type Writer = SplitSink<Framed<TcpStream, LengthDelimitedCodec>, Bytes>;
 

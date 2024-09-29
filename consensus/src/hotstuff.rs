@@ -1,8 +1,7 @@
-use hotstuff_p2p::HotStuffMessage;
 use tokio::sync::mpsc;
 use tracing::info;
 
-use crate::HotStuffConfig;
+use crate::{HotStuffConfig, HotStuffMessage};
 
 pub struct HotStuff {
     dispatcher: mpsc::Sender<HotStuffMessage>,
