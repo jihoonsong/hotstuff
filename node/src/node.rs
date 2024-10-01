@@ -1,5 +1,5 @@
 use hotstuff_consensus::{HotStuff, HotStuffConfig};
-use hotstuff_mempool::{Mempool, MempoolTransaction};
+use hotstuff_mempool::{Mempool, MempoolTransaction, Validator};
 use hotstuff_p2p::{Network, NetworkConfig};
 use hotstuff_rpc::{RpcConfig, RpcServer};
 use tracing::info;
@@ -24,8 +24,11 @@ impl Node {
     }
 
     pub async fn run(self) {
+        // Create transaction validator.
+        let validator = Validator::<MempoolTransaction>::new();
+
         // Create HotStuff mempool.
-        let mempool = Mempool::<MempoolTransaction>::new();
+        let mempool = Mempool::<MempoolTransaction, Validator<MempoolTransaction>>::new(validator);
 
         // Run HotStuff consensus protocol.
         let hotstuff = HotStuff::new(self.hotstuff, mempool);
