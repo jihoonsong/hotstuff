@@ -366,6 +366,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "futures-util",
+ "hotstuff-mempool",
  "serde",
  "tokio",
  "tokio-util",
@@ -376,7 +377,6 @@ dependencies = [
 name = "hotstuff-mempool"
 version = "0.1.0"
 dependencies = [
- "hotstuff-consensus",
  "parking_lot",
  "thiserror",
 ]

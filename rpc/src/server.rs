@@ -1,5 +1,4 @@
-use hotstuff_consensus::TransactionPool;
-use hotstuff_mempool::{MempoolError, MempoolTransaction};
+use hotstuff_mempool::{MempoolError, MempoolTransaction, TransactionPool};
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
 use std::{net::SocketAddr, sync::Arc};
 

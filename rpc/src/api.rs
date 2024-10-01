@@ -1,5 +1,4 @@
-use hotstuff_consensus::TransactionPool;
-use hotstuff_mempool::{MempoolError, MempoolTransaction};
+use hotstuff_mempool::{MempoolError, MempoolTransaction, TransactionPool};
 use jsonrpsee::{core::RpcResult, proc_macros::rpc};
 use std::sync::Arc;
 use tracing::info;

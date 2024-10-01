@@ -1,5 +1,4 @@
-use hotstuff_consensus::TransactionPool;
-use hotstuff_mempool::{MempoolError, MempoolTransaction};
+use hotstuff_mempool::{MempoolError, MempoolTransaction, TransactionPool};
 use std::future::Future;
 
 use crate::{to_transaction, FromRpcError, RpcApiError, RpcError, TransactionRequest};

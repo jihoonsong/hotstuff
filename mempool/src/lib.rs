@@ -3,5 +3,5 @@ mod pool;
 mod transaction;
 
 pub use error::MempoolError;
-pub use pool::Mempool;
-pub use transaction::MempoolTransaction;
+pub use pool::{Mempool, TransactionPool};
+pub use transaction::{MempoolTransaction, Transaction};

@@ -1,9 +1,11 @@
-use hotstuff_consensus::Transaction;
-
 #[derive(Clone)]
 pub struct MempoolTransaction {
     pub nonce: u128,
     pub data: String,
+}
+
+pub trait Transaction {
+    fn hash(&self) -> String;
 }
 
 impl Transaction for MempoolTransaction {

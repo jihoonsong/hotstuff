@@ -1,8 +1,9 @@
+use hotstuff_mempool::{Transaction, TransactionPool};
 use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::info;
 
-use crate::{HotStuffConfig, HotStuffMessage, Transaction, TransactionPool};
+use crate::{HotStuffConfig, HotStuffMessage};
 
 pub struct HotStuff<T, P>
 where

@@ -1,8 +1,7 @@
-use hotstuff_consensus::{Transaction, TransactionPool};
 use parking_lot::RwLock;
 use std::future::Future;
 
-use crate::error::MempoolError;
+use crate::{error::MempoolError, Transaction};
 
 pub struct Mempool<T>
 where
@@ -20,6 +19,17 @@ where
             transactions: RwLock::new(Vec::new()),
         }
     }
+}
+
+pub trait TransactionPool {
+    type Transaction;
+
+    type TransactionError;
+
+    fn add_transaction(
+        &self,
+        transaction: Self::Transaction,
+    ) -> impl Future<Output = Result<String, Self::TransactionError>> + Send;
 }
 
 impl<T> TransactionPool for Mempool<T>
