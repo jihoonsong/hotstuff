@@ -22,7 +22,7 @@ where
 }
 
 pub trait TransactionPool {
-    type Transaction;
+    type Transaction: Transaction;
 
     type TransactionError;
 
