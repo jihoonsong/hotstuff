@@ -8,7 +8,7 @@ mod transaction;
 
 pub use config::RpcConfig;
 pub use error::RpcError;
-pub use request::{HotStuffTransactionRequest, TransactionRequest};
+pub use request::{MempoolTransactionRequest, TransactionRequest};
 pub use server::RpcServer;
 
 pub(crate) use api::{RpcApi, RpcApiServer};

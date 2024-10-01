@@ -1,5 +1,5 @@
 use futures::future::join_all;
-use hotstuff_rpc::{HotStuffTransactionRequest, TransactionRequest};
+use hotstuff_rpc::{MempoolTransactionRequest, TransactionRequest};
 use jsonrpsee::core::client::ClientT;
 use jsonrpsee::rpc_params;
 use jsonrpsee::ws_client::WsClientBuilder;
@@ -45,7 +45,7 @@ impl Client {
         loop {
             // Set transaction data. Nonce is shared across all transactions.
             let mut nonce = nonce.lock().await;
-            let transaction = TransactionRequest::HotStuff(HotStuffTransactionRequest {
+            let transaction = TransactionRequest::Mempool(MempoolTransactionRequest {
                 nonce: *nonce,
                 data: data.clone(),
             });

@@ -3,11 +3,11 @@ use std::fmt;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub enum TransactionRequest {
-    HotStuff(HotStuffTransactionRequest),
+    Mempool(MempoolTransactionRequest),
 }
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
-pub struct HotStuffTransactionRequest {
+pub struct MempoolTransactionRequest {
     pub nonce: u128,
     pub data: String,
 }
