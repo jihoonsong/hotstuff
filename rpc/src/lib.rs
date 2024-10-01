@@ -1,6 +1,5 @@
 mod api;
 mod config;
-mod convert;
 mod error;
 mod request;
 mod server;
@@ -12,7 +11,6 @@ pub use request::{MempoolTransactionRequest, TransactionRequest};
 pub use server::RpcServer;
 
 pub(crate) use api::{RpcApi, RpcApiServer};
-pub(crate) use convert::to_transaction;
 pub(crate) use error::{FromRpcError, RpcApiError};
 pub(crate) use transaction::RpcApiTransaction;
 
