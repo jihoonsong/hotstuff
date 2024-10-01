@@ -1,4 +1,5 @@
 use hotstuff_consensus::{HotStuff, HotStuffConfig};
+use hotstuff_mempool::{Mempool, MempoolTransaction};
 use hotstuff_p2p::{Network, NetworkConfig};
 use hotstuff_rpc::{RpcConfig, RpcServer};
 use tracing::info;
@@ -23,13 +24,17 @@ impl Node {
     }
 
     pub async fn run(self) {
+        // Create HotStuff mempool.
+        let mempool = Mempool::<MempoolTransaction>::new();
+
         // Run HotStuff consensus protocol.
-        let hotstuff = HotStuff::new(self.hotstuff);
+        let hotstuff = HotStuff::new(self.hotstuff, mempool);
         let hotstuff_mailbox = hotstuff.mailbox();
+        let hotstuff_mempool = hotstuff.mempool();
         let mut hotstuff_task = tokio::spawn(hotstuff.run());
 
         // Run RPC server.
-        let rpc_server = RpcServer::new(self.rpc)
+        let rpc_server = RpcServer::new(self.rpc, hotstuff_mempool)
             .build()
             .await
             .expect("Failed to build RPC server");

@@ -1,5 +1,5 @@
 use futures::future::join_all;
-use hotstuff_rpc::TransactionRequest;
+use hotstuff_rpc::{HotStuffTransactionRequest, TransactionRequest};
 use jsonrpsee::core::client::ClientT;
 use jsonrpsee::rpc_params;
 use jsonrpsee::ws_client::WsClientBuilder;
@@ -45,10 +45,10 @@ impl Client {
         loop {
             // Set transaction data. Nonce is shared across all transactions.
             let mut nonce = nonce.lock().await;
-            let transaction = TransactionRequest {
+            let transaction = TransactionRequest::HotStuff(HotStuffTransactionRequest {
                 nonce: *nonce,
                 data: data.clone(),
-            };
+            });
             *nonce += 1;
             drop(nonce);
             info!("client sends transaction: {:?}", transaction);

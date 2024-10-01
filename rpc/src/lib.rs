@@ -1,18 +1,21 @@
 mod api;
 mod config;
+mod convert;
 mod error;
 mod request;
 mod server;
 mod transaction;
 
 pub use config::RpcConfig;
-pub use request::TransactionRequest;
+pub use error::RpcError;
+pub use request::{HotStuffTransactionRequest, TransactionRequest};
 pub use server::RpcServer;
 
-pub(crate) use api::{HotStuffApi, HotStuffApiServer};
-pub(crate) use error::{HotStuffApiError, HotStuffError, RpcError};
-pub(crate) use transaction::HotStuffTransaction;
+pub(crate) use api::{RpcApi, RpcApiServer};
+pub(crate) use convert::to_transaction;
+pub(crate) use error::{FromRpcError, RpcApiError};
+pub(crate) use transaction::RpcApiTransaction;
 
-pub(crate) trait HotStuffApis: HotStuffError + HotStuffTransaction + 'static {}
+pub(crate) trait RpcApis: RpcApiError + RpcApiTransaction + 'static {}
 
-impl<T> HotStuffApis for T where T: HotStuffError + HotStuffTransaction + 'static {}
+impl<T> RpcApis for T where T: RpcApiError + RpcApiTransaction + 'static {}

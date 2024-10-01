@@ -1,26 +1,36 @@
+use hotstuff_consensus::TransactionPool;
+use hotstuff_mempool::MempoolTransaction;
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
-use std::net::SocketAddr;
+use std::{net::SocketAddr, sync::Arc};
 
-use crate::{HotStuffApi, HotStuffApiServer, RpcConfig, RpcError};
+use crate::{RpcApi, RpcApiServer, RpcConfig, RpcError};
 
-pub struct RpcServer {
+pub struct RpcServer<P>
+where
+    P: TransactionPool<Transaction = MempoolTransaction> + Send + Sync + 'static,
+{
     address: SocketAddr,
+    transaction_pool: Arc<P>,
 }
 
-impl RpcServer {
-    pub fn new(config: RpcConfig) -> Self {
+impl<P> RpcServer<P>
+where
+    P: TransactionPool<Transaction = MempoolTransaction> + Send + Sync + 'static,
+{
+    pub fn new(config: RpcConfig, transaction_pool: Arc<P>) -> Self {
         Self {
             address: config.address,
+            transaction_pool,
         }
     }
 
     pub async fn build(&self) -> Result<ServerHandle, RpcError> {
-        let hotstuff_api = HotStuffApi::new();
+        let rpc_api = RpcApi::new(self.transaction_pool.clone());
 
         let mut module = RpcModule::new(());
         module
-            .merge(hotstuff_api.into_rpc())
-            .map_err(|e| RpcError::Merge(String::from("hotstuff_api"), e))?;
+            .merge(rpc_api.into_rpc())
+            .map_err(|e| RpcError::Merge(String::from("rpc_api"), e))?;
 
         let server = Server::builder()
             .build(self.address)

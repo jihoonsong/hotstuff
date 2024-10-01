@@ -1,20 +1,31 @@
+use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::info;
 
-use crate::{HotStuffConfig, HotStuffMessage};
+use crate::{HotStuffConfig, HotStuffMessage, Transaction, TransactionPool};
 
-pub struct HotStuff {
+pub struct HotStuff<T, P>
+where
+    T: Transaction,
+    P: TransactionPool<Transaction = T>,
+{
     dispatcher: mpsc::Sender<HotStuffMessage>,
     mailbox: mpsc::Receiver<HotStuffMessage>,
+    mempool: Arc<P>,
 }
 
-impl HotStuff {
-    pub fn new(config: HotStuffConfig) -> Self {
+impl<T, P> HotStuff<T, P>
+where
+    T: Transaction,
+    P: TransactionPool<Transaction = T>,
+{
+    pub fn new(config: HotStuffConfig, mempool: P) -> Self {
         let (dispatcher, mailbox) = mpsc::channel(config.mailbox_size);
 
         Self {
             dispatcher,
             mailbox,
+            mempool: Arc::new(mempool),
         }
     }
 
@@ -30,5 +41,9 @@ impl HotStuff {
 
     pub fn mailbox(&self) -> mpsc::Sender<HotStuffMessage> {
         self.dispatcher.clone()
+    }
+
+    pub fn mempool(&self) -> Arc<P> {
+        self.mempool.clone()
     }
 }

@@ -366,7 +366,6 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "futures-util",
- "hotstuff-p2p",
  "serde",
  "tokio",
  "tokio-util",
@@ -374,10 +373,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "hotstuff-mempool"
+version = "0.1.0"
+dependencies = [
+ "hotstuff-consensus",
+ "parking_lot",
+ "thiserror",
+]
+
+[[package]]
 name = "hotstuff-node"
 version = "0.1.0"
 dependencies = [
  "hotstuff-consensus",
+ "hotstuff-mempool",
  "hotstuff-p2p",
  "hotstuff-rpc",
  "jsonrpsee",
@@ -392,6 +401,7 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "futures",
+ "hotstuff-consensus",
  "serde",
  "thiserror",
  "tokio",
@@ -404,6 +414,8 @@ name = "hotstuff-rpc"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "hotstuff-consensus",
+ "hotstuff-mempool",
  "jsonrpsee",
  "jsonrpsee-types",
  "serde",

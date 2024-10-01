@@ -1,3 +1,5 @@
-pub struct HotStuffMessage {}
+use tokio_util::bytes::Bytes;
 
-impl HotStuffMessage {}
+pub enum HotStuffMessage {
+    Dummy { data: Bytes },
+}

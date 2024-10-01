@@ -6,8 +6,6 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-hotstuff-p2p = { workspace = true } 
-
 serde = { version = "1", features = ["derive"] }
 tokio = { version = "1", features = ["full"] }
 tokio-util = "0.7"

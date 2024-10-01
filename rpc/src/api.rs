@@ -1,38 +1,58 @@
+use hotstuff_consensus::TransactionPool;
+use hotstuff_mempool::MempoolTransaction;
 use jsonrpsee::{core::RpcResult, proc_macros::rpc};
-use jsonrpsee_types::ErrorObject;
+use std::sync::Arc;
 use tracing::info;
 
-use crate::{
-    HotStuffApiError, HotStuffApis, HotStuffError, HotStuffTransaction, TransactionRequest,
-};
+use crate::{RpcApiError, RpcApiTransaction, RpcApis, RpcError, TransactionRequest};
 
-pub struct HotStuffApi {}
+pub(crate) struct RpcApi<T>
+where
+    T: TransactionPool<Transaction = MempoolTransaction> + Send + Sync + 'static,
+{
+    transaction_pool: Arc<T>,
+}
 
-impl HotStuffApi {
-    pub fn new() -> Self {
-        Self {}
+impl<T> RpcApi<T>
+where
+    T: TransactionPool<Transaction = MempoolTransaction> + Send + Sync + 'static,
+{
+    pub fn new(transaction_pool: Arc<T>) -> Self {
+        Self { transaction_pool }
     }
 }
 #[rpc(server, namespace = "hotstuff")]
-pub trait HotStuffApi {
+pub(crate) trait RpcApi {
     #[method(name = "sendTransaction")]
     async fn send_transaction(&self, request: TransactionRequest) -> RpcResult<String>;
 }
 
 #[async_trait::async_trait]
-impl<T> HotStuffApiServer for T
+impl<T> RpcApiServer for T
 where
-    T: HotStuffApis,
-    ErrorObject<'static>: From<T::Error>,
+    T: RpcApis,
+    jsonrpsee_types::ErrorObject<'static>: From<T::Error>,
 {
     async fn send_transaction(&self, request: TransactionRequest) -> RpcResult<String> {
         info!("send_transaction: {:?}", request);
-        Ok(HotStuffTransaction::send_transaction(self, request).await?)
+        Ok(RpcApiTransaction::send_transaction(self, request).await?)
     }
 }
 
-impl HotStuffError for HotStuffApi {
-    type Error = HotStuffApiError;
+impl<T> RpcApiError for RpcApi<T>
+where
+    T: TransactionPool<Transaction = MempoolTransaction> + Send + Sync + 'static,
+{
+    type Error = RpcError;
 }
 
-impl HotStuffTransaction for HotStuffApi {}
+impl<T> RpcApiTransaction for RpcApi<T>
+where
+    T: TransactionPool<Transaction = MempoolTransaction> + Send + Sync + 'static,
+{
+    type Pool = T;
+
+    fn pool(&self) -> &Self::Pool {
+        &self.transaction_pool
+    }
+}

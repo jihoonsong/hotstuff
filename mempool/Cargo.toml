@@ -1,0 +1,12 @@
+[package]
+name = "hotstuff-mempool"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[dependencies]
+hotstuff-consensus = { workspace = true }
+
+thiserror = "1"
+parking_lot = "0.12"
