@@ -1,3 +1,4 @@
+use hotstuff_mempool::MempoolError;
 use std::error::Error;
 use std::net::SocketAddr;
 use thiserror::Error;
@@ -12,6 +13,9 @@ pub enum RpcError {
 
     #[error("Invalid transaction request: {0}")]
     InvalidTransactionRequest(String),
+
+    #[error("Bad transaction {0}: {1}")]
+    BadTransaction(String, u8),
 }
 
 impl From<RpcError> for jsonrpsee_types::ErrorObject<'static> {
@@ -31,6 +35,11 @@ impl From<RpcError> for jsonrpsee_types::ErrorObject<'static> {
                 jsonrpsee_types::error::PARSE_ERROR_CODE,
                 "Invalid transaction request",
                 Some(request),
+            ),
+            RpcError::BadTransaction(hash, error_code) => jsonrpsee_types::ErrorObject::owned(
+                error_code as i32,
+                "Bad transaction",
+                Some(hash),
             ),
         }
     }
@@ -52,6 +61,12 @@ where
         RpcError: From<E>,
     {
         T::from(RpcError::from(err))
+    }
+}
+
+impl From<MempoolError> for RpcError {
+    fn from(err: MempoolError) -> Self {
+        RpcError::BadTransaction(String::from("0x00"), 1) // TODO: Placeholder.
     }
 }
 

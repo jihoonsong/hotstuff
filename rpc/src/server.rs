@@ -1,5 +1,5 @@
 use hotstuff_consensus::TransactionPool;
-use hotstuff_mempool::MempoolTransaction;
+use hotstuff_mempool::{MempoolError, MempoolTransaction};
 use jsonrpsee::server::{RpcModule, Server, ServerHandle};
 use std::{net::SocketAddr, sync::Arc};
 
@@ -7,7 +7,10 @@ use crate::{RpcApi, RpcApiServer, RpcConfig, RpcError};
 
 pub struct RpcServer<P>
 where
-    P: TransactionPool<Transaction = MempoolTransaction> + Send + Sync + 'static,
+    P: TransactionPool<Transaction = MempoolTransaction, TransactionError = MempoolError>
+        + Send
+        + Sync
+        + 'static,
 {
     address: SocketAddr,
     transaction_pool: Arc<P>,
@@ -15,7 +18,10 @@ where
 
 impl<P> RpcServer<P>
 where
-    P: TransactionPool<Transaction = MempoolTransaction> + Send + Sync + 'static,
+    P: TransactionPool<Transaction = MempoolTransaction, TransactionError = MempoolError>
+        + Send
+        + Sync
+        + 'static,
 {
     pub fn new(config: RpcConfig, transaction_pool: Arc<P>) -> Self {
         Self {

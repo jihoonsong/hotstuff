@@ -1,11 +1,11 @@
 use hotstuff_consensus::TransactionPool;
-use hotstuff_mempool::MempoolTransaction;
+use hotstuff_mempool::{MempoolError, MempoolTransaction};
 use std::future::Future;
 
 use crate::{to_transaction, FromRpcError, RpcApiError, RpcError, TransactionRequest};
 
 pub(crate) trait RpcApiTransaction {
-    type Pool: TransactionPool<Transaction = MempoolTransaction>;
+    type Pool: TransactionPool<Transaction = MempoolTransaction, TransactionError = MempoolError>;
 
     fn pool(&self) -> &Self::Pool;
 
@@ -24,9 +24,13 @@ pub(crate) trait RpcApiTransaction {
                 )))
                 .map_err(Self::Error::from_rpc_err)?;
 
-            _ = self.pool().add_transaction(transaction).await;
+            let transaction_hash = self
+                .pool()
+                .add_transaction(transaction)
+                .await
+                .map_err(Self::Error::from_rpc_err)?;
 
-            Ok(String::from(""))
+            Ok(transaction_hash)
         }
     }
 }
