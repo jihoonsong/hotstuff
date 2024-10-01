@@ -3,6 +3,8 @@ use std::error::Error;
 use std::net::SocketAddr;
 use thiserror::Error;
 
+use crate::TransactionRequest;
+
 #[derive(Debug, Error)]
 pub enum RpcError {
     #[error("Failed to merge RPC endpoint {0}: {1}")]
@@ -12,7 +14,7 @@ pub enum RpcError {
     Server(SocketAddr, std::io::Error),
 
     #[error("Invalid transaction request: {0}")]
-    InvalidTransactionRequest(String),
+    InvalidTransactionRequest(TransactionRequest),
 
     #[error("Bad transaction {0}: {1}")]
     BadTransaction(String, u8),

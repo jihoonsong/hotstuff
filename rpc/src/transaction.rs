@@ -18,10 +18,7 @@ pub(crate) trait RpcApiTransaction {
     {
         async move {
             let transaction = to_transaction(request.clone())
-                .ok_or(RpcError::InvalidTransactionRequest(format!(
-                    "{:?}",
-                    request
-                )))
+                .ok_or(RpcError::InvalidTransactionRequest(request))
                 .map_err(Self::Error::from_rpc_err)?;
 
             let transaction_hash = self
