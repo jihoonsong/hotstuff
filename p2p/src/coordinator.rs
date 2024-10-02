@@ -27,7 +27,7 @@ impl Coordinator {
 
         Self {
             max_peers: config.max_peers,
-            candidate_peers: config.peers.unwrap_or(vec![]),
+            candidate_peers: config.peers.unwrap_or_default(),
             connected_peers: HashMap::new(),
             dispatcher,
             mailbox,
