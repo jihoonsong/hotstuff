@@ -46,7 +46,6 @@ impl Dialer {
                         }
                         Err(e) => {
                             debug!(error=?e);
-                            return;
                         }
                     }
                 });
