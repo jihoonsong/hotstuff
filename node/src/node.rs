@@ -7,7 +7,7 @@ use tracing::info;
 use crate::NodeConfig;
 
 pub struct Node {
-    identity: String, // TODO: Use cryptographic public key.
+    _identity: String, // TODO: Use cryptographic public key.
     hotstuff: HotStuffConfig,
     rpc: RpcConfig,
     network: NetworkConfig,
@@ -16,7 +16,7 @@ pub struct Node {
 impl Node {
     pub fn new(config: NodeConfig) -> Self {
         Self {
-            identity: config.identity,
+            _identity: config.identity,
             hotstuff: config.hotstuff,
             rpc: config.rpc,
             network: config.network,
