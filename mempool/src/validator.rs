@@ -25,6 +25,15 @@ where
     }
 }
 
+impl<T> Default for Validator<T>
+where
+    T: Transaction + Send + Sync + Clone,
+{
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub trait TransactionValidator {
     type Transaction: Transaction;
 

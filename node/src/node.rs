@@ -25,7 +25,7 @@ impl Node {
 
     pub async fn run(self) {
         // Create transaction validator.
-        let validator = Validator::<MempoolTransaction>::new();
+        let validator = Validator::<MempoolTransaction>::default();
 
         // Create HotStuff mempool.
         let mempool = Mempool::<MempoolTransaction, Validator<MempoolTransaction>>::new(validator);
