@@ -2,7 +2,7 @@ use std::fmt;
 
 #[derive(Clone, Debug)]
 pub enum TransactionKind {
-    Mempool = 0,
+    Mempool,
     Placeholder, // To be replaced.
 }
 
