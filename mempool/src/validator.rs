@@ -49,17 +49,14 @@ where
 {
     type Transaction = T;
 
-    fn validate(
+    async fn validate(
         &self,
         transaction: Self::Transaction,
-    ) -> impl Future<Output = TransactionValidationResult<Self::Transaction>> + Send {
-        async move {
-            match transaction.kind() {
-                TransactionKind::Mempool => TransactionValidationResult::Valid(transaction),
-                kind => TransactionValidationResult::Invalid(
-                    transaction,
-                    TransactionError::BadKind(kind),
-                ),
+    ) -> TransactionValidationResult<Self::Transaction> {
+        match transaction.kind() {
+            TransactionKind::Mempool => TransactionValidationResult::Valid(transaction),
+            kind => {
+                TransactionValidationResult::Invalid(transaction, TransactionError::BadKind(kind))
             }
         }
     }

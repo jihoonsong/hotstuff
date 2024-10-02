@@ -45,20 +45,18 @@ where
 
     type TransactionError = MempoolError;
 
-    fn add_transaction(
+    async fn add_transaction(
         &self,
         transaction: Self::Transaction,
-    ) -> impl Future<Output = Result<String, Self::TransactionError>> + Send {
-        async move {
-            match self.validator.validate(transaction).await {
-                TransactionValidationResult::Valid(transaction) => {
-                    let hash = transaction.hash();
-                    self.transactions.write().push(transaction);
-                    Ok(hash)
-                }
-                TransactionValidationResult::Invalid(_, error) => {
-                    Err(Self::TransactionError::InvalidTransaction(error))
-                }
+    ) -> Result<String, Self::TransactionError> {
+        match self.validator.validate(transaction).await {
+            TransactionValidationResult::Valid(transaction) => {
+                let hash = transaction.hash();
+                self.transactions.write().push(transaction);
+                Ok(hash)
+            }
+            TransactionValidationResult::Invalid(_, error) => {
+                Err(Self::TransactionError::InvalidTransaction(error))
             }
         }
     }
