@@ -24,11 +24,7 @@ impl Listener {
         info!("Start listening on {}", self.address);
 
         loop {
-            match listener
-                .accept()
-                .await
-                .map_err(|e| P2PError::AcceptConnection(e))
-            {
+            match listener.accept().await.map_err(P2PError::AcceptConnection) {
                 Ok((stream, peer)) => {
                     info!("Successfully accepted incoming connection from {peer}");
                     self.coordinator

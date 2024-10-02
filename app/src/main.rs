@@ -7,9 +7,7 @@ use crate::config::Config;
 use crate::network::Network;
 
 use std::{fs, io};
-use toml;
 use tracing::info;
-use tracing_subscriber;
 
 #[tokio::main]
 async fn main() {

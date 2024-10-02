@@ -1,25 +1,69 @@
-use async_trait::async_trait;
+use hotstuff_mempool::{MempoolError, MempoolTransaction, TransactionPool};
 use jsonrpsee::{core::RpcResult, proc_macros::rpc};
+use std::sync::Arc;
+use tracing::info;
 
-use crate::Transaction;
+use crate::{RpcApiError, RpcApiTransaction, RpcApis, RpcError, TransactionRequest};
 
-#[rpc(server, namespace = "transaction")]
-pub trait Transaction {
-    #[method(name = "send")]
-    async fn send_transacrion(&self, request: Transaction) -> RpcResult<String>;
+pub(crate) struct RpcApi<T>
+where
+    T: TransactionPool<Transaction = MempoolTransaction, TransactionError = MempoolError>
+        + Send
+        + Sync
+        + 'static,
+{
+    transaction_pool: Arc<T>,
 }
 
-pub struct TransactionApi {}
+impl<T> RpcApi<T>
+where
+    T: TransactionPool<Transaction = MempoolTransaction, TransactionError = MempoolError>
+        + Send
+        + Sync
+        + 'static,
+{
+    pub fn new(transaction_pool: Arc<T>) -> Self {
+        Self { transaction_pool }
+    }
+}
+#[rpc(server, namespace = "hotstuff")]
+pub(crate) trait RpcApi {
+    #[method(name = "sendTransaction")]
+    async fn send_transaction(&self, request: TransactionRequest) -> RpcResult<String>;
+}
 
-impl TransactionApi {
-    pub fn new() -> Self {
-        Self {}
+#[async_trait::async_trait]
+impl<T> RpcApiServer for T
+where
+    T: RpcApis,
+    jsonrpsee_types::ErrorObject<'static>: From<T::Error>,
+{
+    async fn send_transaction(&self, request: TransactionRequest) -> RpcResult<String> {
+        info!("send_transaction: {:?}", request);
+        Ok(RpcApiTransaction::send_transaction(self, request).await?)
     }
 }
 
-#[async_trait]
-impl TransactionServer for TransactionApi {
-    async fn send_transacrion(&self, request: Transaction) -> RpcResult<String> {
-        Ok(format!("send_transaction received {:?}", request))
+impl<T> RpcApiError for RpcApi<T>
+where
+    T: TransactionPool<Transaction = MempoolTransaction, TransactionError = MempoolError>
+        + Send
+        + Sync
+        + 'static,
+{
+    type Error = RpcError;
+}
+
+impl<T> RpcApiTransaction for RpcApi<T>
+where
+    T: TransactionPool<Transaction = MempoolTransaction, TransactionError = MempoolError>
+        + Send
+        + Sync
+        + 'static,
+{
+    type Pool = T;
+
+    fn pool(&self) -> &Self::Pool {
+        &self.transaction_pool
     }
 }

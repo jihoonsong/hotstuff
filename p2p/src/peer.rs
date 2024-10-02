@@ -1,10 +1,11 @@
 use futures::{stream::SplitStream, StreamExt};
+use hotstuff_consensus::HotStuffMessage;
 use std::net::SocketAddr;
 use tokio::{net::TcpStream, sync::mpsc};
 use tokio_util::codec::{Framed, LengthDelimitedCodec};
 use tracing::{debug, info};
 
-use crate::{HotStuffMessage, P2PError};
+use crate::P2PError;
 
 pub struct Peer {
     identity: SocketAddr, // TODO: Use cryptographic public key.

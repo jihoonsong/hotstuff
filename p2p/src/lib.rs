@@ -8,7 +8,6 @@ mod network;
 mod peer;
 
 pub use config::NetworkConfig;
-pub use message::HotStuffMessage;
 pub use network::Network;
 
 pub(crate) use config::{CoordinatorConfig, DialerConfig, ListenerConfig};

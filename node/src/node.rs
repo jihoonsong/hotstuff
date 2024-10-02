@@ -1,4 +1,5 @@
 use hotstuff_consensus::{HotStuff, HotStuffConfig};
+use hotstuff_mempool::{Mempool, MempoolTransaction, Validator};
 use hotstuff_p2p::{Network, NetworkConfig};
 use hotstuff_rpc::{RpcConfig, RpcServer};
 use tracing::info;
@@ -6,7 +7,7 @@ use tracing::info;
 use crate::NodeConfig;
 
 pub struct Node {
-    identity: String, // TODO: Use cryptographic public key.
+    _identity: String, // TODO: Use cryptographic public key.
     hotstuff: HotStuffConfig,
     rpc: RpcConfig,
     network: NetworkConfig,
@@ -15,7 +16,7 @@ pub struct Node {
 impl Node {
     pub fn new(config: NodeConfig) -> Self {
         Self {
-            identity: config.identity,
+            _identity: config.identity,
             hotstuff: config.hotstuff,
             rpc: config.rpc,
             network: config.network,
@@ -23,13 +24,20 @@ impl Node {
     }
 
     pub async fn run(self) {
+        // Create transaction validator.
+        let validator = Validator::<MempoolTransaction>::default();
+
+        // Create HotStuff mempool.
+        let mempool = Mempool::<MempoolTransaction, Validator<MempoolTransaction>>::new(validator);
+
         // Run HotStuff consensus protocol.
-        let hotstuff = HotStuff::new(self.hotstuff);
+        let hotstuff = HotStuff::new(self.hotstuff, mempool);
         let hotstuff_mailbox = hotstuff.mailbox();
+        let hotstuff_mempool = hotstuff.mempool();
         let mut hotstuff_task = tokio::spawn(hotstuff.run());
 
         // Run RPC server.
-        let rpc_server = RpcServer::new(self.rpc)
+        let rpc_server = RpcServer::new(self.rpc, hotstuff_mempool)
             .build()
             .await
             .expect("Failed to build RPC server");

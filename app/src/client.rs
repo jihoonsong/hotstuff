@@ -1,5 +1,5 @@
 use futures::future::join_all;
-use hotstuff_rpc::Transaction;
+use hotstuff_rpc::{MempoolTransactionRequest, TransactionRequest};
 use jsonrpsee::core::client::ClientT;
 use jsonrpsee::rpc_params;
 use jsonrpsee::ws_client::WsClientBuilder;
@@ -37,7 +37,7 @@ impl Client {
     }
 
     async fn send_transactions(url: String, data: String, nonce: Arc<Mutex<u128>>) {
-        let client = WsClientBuilder::default()
+        let client: jsonrpsee::ws_client::WsClient = WsClientBuilder::default()
             .build(&url)
             .await
             .expect("Failed to build WsClientBuilder");
@@ -45,17 +45,17 @@ impl Client {
         loop {
             // Set transaction data. Nonce is shared across all transactions.
             let mut nonce = nonce.lock().await;
-            let transaction = Transaction {
+            let transaction = TransactionRequest::Mempool(MempoolTransactionRequest {
                 nonce: *nonce,
                 data: data.clone(),
-            };
+            });
             *nonce += 1;
             drop(nonce);
             info!("client sends transaction: {:?}", transaction);
 
             let response: String = loop {
                 match client
-                    .request("transaction_send", rpc_params![transaction.clone()])
+                    .request("hotstuff_sendTransaction", rpc_params![transaction.clone()])
                     .await
                 {
                     Ok(response) => break response,
