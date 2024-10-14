@@ -23,16 +23,16 @@ async fn main() {
 }
 
 async fn run() {
-    // Read config.
+    // Read the config file.
     let config_content = fs::read_to_string("./Config.toml").expect("Failed to read config");
-    let config: Config = toml::from_str(&config_content).expect("Failed to parse config");
+    let configs: Config = toml::from_str(&config_content).expect("Failed to parse config");
 
-    // Start client.
-    let client = Client::new(config.client);
+    // Start the client.
+    let client = Client::new(configs.client);
     let mut client_task = tokio::spawn(client.run());
 
-    // Start network.
-    let network: Network = Network::new(config.nodes);
+    // Start the network.
+    let network: Network = Network::new(configs.nodes);
     let mut network_task = tokio::spawn(network.run());
 
     match tokio::try_join!(&mut client_task, &mut network_task) {
