@@ -414,7 +414,6 @@ name = "hotstuff-rpc"
 version = "0.1.0"
 dependencies = [
  "async-trait",
- "hotstuff-consensus",
  "hotstuff-mempool",
  "jsonrpsee",
  "jsonrpsee-types",
