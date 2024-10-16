@@ -13,7 +13,8 @@ where
     H: NetworkMessageHandler<M>,
 {
     configs: NetworkConfig,
-    hotstuff: mpsc::Sender<HotStuffMessage>,
+    to_p2p_network: mpsc::Sender<NetworkAction>,
+    from_p2p_network: mpsc::Receiver<NetworkAction>,
     peer_manager: Option<PeerManager<M, H>>,
     peer_message_handler: H,
     _marker: PhantomData<M>,
@@ -29,7 +30,6 @@ where
 
         Self {
             configs: config,
-            hotstuff,
             to_p2p_network,
             from_p2p_network,
             peer_manager: None,
@@ -58,7 +58,22 @@ where
         let listener = Listener::new(self.configs.listener, peer_manager_mailbox.clone());
         let mut listener_task = tokio::spawn(listener.run());
 
-        match tokio::try_join!(&mut peer_manager_task, &mut dialer_task, &mut listener_task) {
+        // Run a task to listen to incoming `NetworkAction`.
+        let mut network_action_task = tokio::spawn(async move {
+            while let Some(action) = self.from_p2p_network.recv().await {
+                peer_manager_mailbox
+                    .send(PeerManagerMessage::NetworkAction(action))
+                    .await
+                    .unwrap();
+            }
+        });
+
+        match tokio::try_join!(
+            &mut peer_manager_task,
+            &mut dialer_task,
+            &mut listener_task,
+            &mut network_action_task
+        ) {
             Ok(_) => {
                 info!("P2P network tasks completed");
             }
@@ -67,8 +82,12 @@ where
                 peer_manager_task.abort();
                 dialer_task.abort();
                 listener_task.abort();
+                network_action_task.abort();
             }
         };
     }
-}
 
+    pub fn mailbox(&self) -> mpsc::Sender<NetworkAction> {
+        self.to_p2p_network.clone()
+    }
+}

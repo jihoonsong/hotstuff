@@ -56,6 +56,12 @@ where
                 PeerManagerMessage::NewPeer { peer, stream } => {
                     self.new_peer(peer, stream).await;
                 }
+                PeerManagerMessage::NetworkAction(NetworkAction::Send { recipient, message }) => {
+                    self.send(recipient, message).await;
+                }
+                PeerManagerMessage::NetworkAction(NetworkAction::Broadcast { message }) => {
+                    self.broadcast(message).await;
+                }
             }
         }
     }
@@ -98,5 +104,12 @@ where
 
         info!("New connected peer: {peer}");
     }
-}
 
+    async fn send(&self, recipient: SocketAddr, message: Bytes) {
+        // TODO: to be implemented.
+    }
+
+    async fn broadcast(&self, message: Bytes) {
+        // TODO: to be implemented.
+    }
+}

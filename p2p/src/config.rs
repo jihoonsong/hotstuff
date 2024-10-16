@@ -6,6 +6,7 @@ pub struct NetworkConfig {
     pub peer_manager: PeerManagerConfig,
     pub dialer: DialerConfig,
     pub listener: ListenerConfig,
+    pub mailbox_size: usize,
 }
 
 #[derive(Debug, Deserialize)]

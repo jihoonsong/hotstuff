@@ -8,7 +8,7 @@ mod peer;
 mod peer_manager;
 
 pub use config::NetworkConfig;
-pub use message::{Decodable, Encodable, NetworkMessage, NetworkMessageHandler};
+pub use message::{Decodable, Encodable, NetworkAction, NetworkMessage, NetworkMessageHandler};
 pub use network::P2PNetwork;
 
 pub(crate) use config::{DialerConfig, ListenerConfig, PeerManagerConfig};

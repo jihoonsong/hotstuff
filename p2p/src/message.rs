@@ -1,5 +1,6 @@
 use std::{fmt::Debug, future::Future, net::SocketAddr};
 use tokio::{net::TcpStream, sync::oneshot};
+use tokio_util::bytes::Bytes;
 
 pub trait Encodable {
     fn encode(self) -> Bytes;
@@ -22,6 +23,15 @@ where
     ) -> impl Future<Output = Result<(), Self::NetworkMessageHandleError>> + Send;
 }
 
+pub enum NetworkAction {
+    Send {
+        recipient: SocketAddr,
+        message: Bytes,
+    },
+    Broadcast {
+        message: Bytes,
+    },
+}
 
 pub(crate) enum PeerManagerMessage {
     DialablePeers {
@@ -31,4 +41,5 @@ pub(crate) enum PeerManagerMessage {
         peer: SocketAddr,
         stream: TcpStream,
     },
+    NetworkAction(NetworkAction),
 }

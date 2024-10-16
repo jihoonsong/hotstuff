@@ -20,27 +20,31 @@ impl Node {
     }
 
     pub async fn run(self) {
-        // Create transaction validator.
+        // Create a HotStuff mempool.
         let validator = Validator::<MempoolTransaction>::default();
-
-        // Create HotStuff mempool.
         let mempool = Mempool::<MempoolTransaction, Validator<MempoolTransaction>>::new(validator);
 
-        // Run HotStuff consensus protocol.
-        let hotstuff = HotStuff::new(self.configs.hotstuff, mempool);
+        // Create a HotStuff consensus protocol.
+        let mut hotstuff = HotStuff::new(self.configs.hotstuff, mempool);
         let hotstuff_handler = hotstuff.handler();
         let hotstuff_mempool = hotstuff.mempool();
-        let mut hotstuff_task = tokio::spawn(hotstuff.run());
 
-        // Run RPC server.
+        // Create a RPC server.
         let rpc_server = RpcServer::new(self.configs.rpc, hotstuff_mempool)
             .build()
             .await
             .expect("Failed to build RPC server");
-        let mut rpc_server_task = tokio::spawn(rpc_server.stopped());
 
-        // Run P2P network.
-        let p2p_network: P2PNetwork<_, _> = P2PNetwork::new(self.configs.network, hotstuff_handler.clone());
+        // Create a P2P network.
+        let p2p_network = P2PNetwork::new(self.configs.network, hotstuff_handler.clone());
+        let p2p_network_mailbox = p2p_network.mailbox();
+
+        // Configure the HotStuff consensus protocol.
+        hotstuff.set_network(p2p_network_mailbox);
+
+        // Run tasks.
+        let mut hotstuff_task = tokio::spawn(hotstuff.run());
+        let mut rpc_server_task = tokio::spawn(rpc_server.stopped());
         let mut p2p_network_task = tokio::spawn(p2p_network.run());
 
         match tokio::try_join!(
