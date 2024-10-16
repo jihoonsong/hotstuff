@@ -367,6 +367,7 @@ dependencies = [
  "async-trait",
  "futures-util",
  "hotstuff-mempool",
+ "hotstuff-p2p",
  "serde",
  "tokio",
  "tokio-util",
@@ -401,7 +402,6 @@ version = "0.1.0"
 dependencies = [
  "async-trait",
  "futures",
- "hotstuff-consensus",
  "serde",
  "thiserror",
  "tokio",
