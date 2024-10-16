@@ -1,4 +1,4 @@
-use futures::{stream::SplitSink, StreamExt};
+use futures::{future::join_all, stream::SplitSink, SinkExt, StreamExt};
 use std::{collections::HashMap, marker::PhantomData, net::SocketAddr};
 use tokio::{io::AsyncWriteExt, net::TcpStream, sync::mpsc};
 use tokio_util::{
@@ -105,11 +105,20 @@ where
         info!("New connected peer: {peer}");
     }
 
-    async fn send(&self, recipient: SocketAddr, message: Bytes) {
-        // TODO: to be implemented.
+    async fn send(&mut self, recipient: SocketAddr, message: Bytes) {
+        let send_futures = self
+            .connected_peers
+            .iter_mut()
+            .filter(|(peer, _)| **peer == recipient)
+            .map(|(_, writer)| writer.send(message.clone()));
+        join_all(send_futures).await;
     }
 
-    async fn broadcast(&self, message: Bytes) {
-        // TODO: to be implemented.
+    async fn broadcast(&mut self, message: Bytes) {
+        let broadcast_futures = self
+            .connected_peers
+            .iter_mut()
+            .map(|(_, writer)| writer.send(message.clone()));
+        join_all(broadcast_futures).await;
     }
 }
