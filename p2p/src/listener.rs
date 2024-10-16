@@ -2,18 +2,18 @@ use std::net::SocketAddr;
 use tokio::{net::TcpListener, sync::mpsc};
 use tracing::{debug, info};
 
-use crate::{PeerManagerMessage, ListenerConfig, P2PError};
+use crate::{ListenerConfig, P2PError, PeerManagerMessage};
 
 pub struct Listener {
     address: SocketAddr,
-    coordinator: mpsc::Sender<PeerManagerMessage>,
+    to_peer_manager: mpsc::Sender<PeerManagerMessage>,
 }
 
 impl Listener {
-    pub fn new(config: ListenerConfig, coordinator: mpsc::Sender<PeerManagerMessage>) -> Self {
+    pub fn new(config: ListenerConfig, to_peer_manager: mpsc::Sender<PeerManagerMessage>) -> Self {
         Self {
             address: config.address,
-            coordinator,
+            to_peer_manager,
         }
     }
 
@@ -27,7 +27,7 @@ impl Listener {
             match listener.accept().await.map_err(P2PError::AcceptConnection) {
                 Ok((stream, peer)) => {
                     info!("Successfully accepted incoming connection from {peer}");
-                    self.coordinator
+                    self.to_peer_manager
                         .send(PeerManagerMessage::NewPeer { peer, stream })
                         .await
                         .unwrap();

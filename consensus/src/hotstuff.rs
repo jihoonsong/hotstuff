@@ -3,7 +3,7 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::info;
 
-use crate::{HotStuffConfig, HotStuffMessage};
+use crate::{message::HotStuffMessageHandler, HotStuffConfig, HotStuffMessage};
 
 pub struct HotStuff<T, P>
 where
@@ -11,7 +11,7 @@ where
     P: TransactionPool<Transaction = T>,
 {
     dispatcher: mpsc::Sender<HotStuffMessage>,
-    mailbox: mpsc::Receiver<HotStuffMessage>,
+    handler: HotStuffMessageHandler,
     mempool: Arc<P>,
 }
 
@@ -21,11 +21,11 @@ where
     P: TransactionPool<Transaction = T>,
 {
     pub fn new(config: HotStuffConfig, mempool: P) -> Self {
-        let (dispatcher, mailbox) = mpsc::channel(config.mailbox_size);
+        let handler = HotStuffMessageHandler { to_hotstuff };
 
         Self {
             dispatcher,
-            mailbox,
+            handler,
             mempool: Arc::new(mempool),
         }
     }
@@ -40,8 +40,8 @@ where
         }
     }
 
-    pub fn mailbox(&self) -> mpsc::Sender<HotStuffMessage> {
-        self.dispatcher.clone()
+    pub fn handler(&self) -> HotStuffMessageHandler {
+        self.handler.clone()
     }
 
     pub fn mempool(&self) -> Arc<P> {

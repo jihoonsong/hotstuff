@@ -1,42 +1,47 @@
 use futures::{stream::SplitStream, StreamExt};
-use hotstuff_consensus::HotStuffMessage;
-use std::net::SocketAddr;
-use tokio::{net::TcpStream, sync::mpsc};
+use std::{marker::PhantomData, net::SocketAddr};
+use tokio::net::TcpStream;
 use tokio_util::codec::{Framed, LengthDelimitedCodec};
-use tracing::{debug, info};
+use tracing::debug;
 
-use crate::P2PError;
+use crate::{
+    message::{NetworkMessage, NetworkMessageHandler},
+    P2PError,
+};
 
-pub struct Peer {
+pub struct Peer<M, H>
+where
+    M: NetworkMessage,
+    H: NetworkMessageHandler<M>,
+{
     identity: SocketAddr, // TODO: Use cryptographic public key.
     reader: Reader,
-    hotstuff: mpsc::Sender<HotStuffMessage>,
+    peer_message_handler: H,
+    _marker: PhantomData<M>,
 }
 
 type Reader = SplitStream<Framed<TcpStream, LengthDelimitedCodec>>;
 
-impl Peer {
-    pub fn new(
-        identity: SocketAddr,
-        reader: Reader,
-        hotstuff: mpsc::Sender<HotStuffMessage>,
-    ) -> Self {
+impl<M, H> Peer<M, H>
+where
+    M: NetworkMessage,
+    H: NetworkMessageHandler<M>,
+{
+    pub fn new(identity: SocketAddr, reader: Reader, peer_message_handler: H) -> Self {
         Self {
             identity,
             reader,
-            hotstuff,
+            peer_message_handler,
+            _marker: PhantomData,
         }
     }
 
     pub async fn run(mut self) {
         while let Some(frame) = self.reader.next().await {
             match frame.map_err(|e| P2PError::ReceiveMessage(self.identity, e)) {
-                Ok(message) => {
-                    info!("Received message from {}: {:?}", self.identity, message);
-                    self.hotstuff
-                        .send(HotStuffMessage::Dummy {
-                            data: message.freeze(),
-                        })
+                Ok(data) => {
+                    self.peer_message_handler
+                        .handle_message(M::decode(data.freeze()))
                         .await
                         .unwrap();
                 }

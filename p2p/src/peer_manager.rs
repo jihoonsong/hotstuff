@@ -1,6 +1,5 @@
 use futures::{stream::SplitSink, StreamExt};
-use hotstuff_consensus::HotStuffMessage;
-use std::{collections::HashMap, net::SocketAddr};
+use std::{collections::HashMap, marker::PhantomData, net::SocketAddr};
 use tokio::{io::AsyncWriteExt, net::TcpStream, sync::mpsc};
 use tokio_util::{
     bytes::Bytes,
@@ -8,35 +7,48 @@ use tokio_util::{
 };
 use tracing::info;
 
-use crate::{PeerManagerConfig, PeerManagerMessage, Peer};
+use crate::{
+    NetworkAction, NetworkMessage, NetworkMessageHandler, Peer, PeerManagerConfig,
+    PeerManagerMessage,
+};
 
 type Writer = SplitSink<Framed<TcpStream, LengthDelimitedCodec>, Bytes>;
 
-pub struct PeerManager {
+pub struct PeerManager<M, H>
+where
+    M: NetworkMessage,
+    H: NetworkMessageHandler<M>,
+{
     max_peers: u16,
     candidate_peers: Vec<SocketAddr>,
     connected_peers: HashMap<SocketAddr, Writer>,
-    dispatcher: mpsc::Sender<PeerManagerMessage>,
-    mailbox: mpsc::Receiver<PeerManagerMessage>,
-    hotstuff: mpsc::Sender<HotStuffMessage>,
+    to_peer_manager: mpsc::Sender<PeerManagerMessage>,
+    from_peer_manager: mpsc::Receiver<PeerManagerMessage>,
+    peer_message_handler: H,
+    _marker: PhantomData<M>,
 }
 
-impl PeerManager {
-    pub fn new(config: PeerManagerConfig, hotstuff: mpsc::Sender<HotStuffMessage>) -> Self {
-        let (dispatcher, mailbox) = mpsc::channel(config.mailbox_size);
+impl<M, H> PeerManager<M, H>
+where
+    M: NetworkMessage,
+    H: NetworkMessageHandler<M>,
+{
+    pub fn new(config: PeerManagerConfig, peer_message_handler: H) -> Self {
+        let (to_peer_manager, from_peer_manager) = mpsc::channel(config.mailbox_size);
 
         Self {
             max_peers: config.max_peers,
             candidate_peers: config.peers.unwrap_or_default(),
             connected_peers: HashMap::new(),
-            dispatcher,
-            mailbox,
-            hotstuff,
+            to_peer_manager,
+            from_peer_manager,
+            peer_message_handler,
+            _marker: PhantomData,
         }
     }
 
     pub async fn run(mut self) {
-        while let Some(message) = self.mailbox.recv().await {
+        while let Some(message) = self.from_peer_manager.recv().await {
             match message {
                 PeerManagerMessage::DialablePeers { respond } => {
                     respond.send(self.dialable_peers()).unwrap();
@@ -49,7 +61,7 @@ impl PeerManager {
     }
 
     pub fn mailbox(&self) -> mpsc::Sender<PeerManagerMessage> {
-        self.dispatcher.clone()
+        self.to_peer_manager.clone()
     }
 
     fn dialable_peers(&self) -> Vec<SocketAddr> {
@@ -79,9 +91,9 @@ impl PeerManager {
         self.connected_peers.insert(peer, writer);
 
         // Spawn peer listening to its messages. Received messages will be redirected to Consensus.
-        let hotstuff = self.hotstuff.clone();
+        let peer_message_handler = self.peer_message_handler.clone();
         tokio::spawn(async move {
-            Peer::new(peer, reader, hotstuff).run().await;
+            Peer::new(peer, reader, peer_message_handler).run().await;
         });
 
         info!("New connected peer: {peer}");

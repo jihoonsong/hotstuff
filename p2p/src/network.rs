@@ -1,33 +1,60 @@
-use hotstuff_consensus::HotStuffMessage;
+use std::marker::PhantomData;
 use tokio::sync::mpsc;
 use tracing::info;
 
-use crate::{PeerManager, Dialer, Listener, NetworkConfig};
+use crate::{
+    message::{NetworkAction, NetworkMessage, NetworkMessageHandler},
+    Dialer, Listener, NetworkConfig, PeerManager, PeerManagerMessage,
+};
 
-pub struct P2PNetwork {
+pub struct P2PNetwork<M, H>
+where
+    M: NetworkMessage,
+    H: NetworkMessageHandler<M>,
+{
     configs: NetworkConfig,
     hotstuff: mpsc::Sender<HotStuffMessage>,
+    peer_manager: Option<PeerManager<M, H>>,
+    peer_message_handler: H,
+    _marker: PhantomData<M>,
 }
 
-impl P2PNetwork {
-    pub fn new(config: NetworkConfig, hotstuff: mpsc::Sender<HotStuffMessage>) -> Self {
+impl<M, H> P2PNetwork<M, H>
+where
+    M: NetworkMessage,
+    H: NetworkMessageHandler<M>,
+{
+    pub fn new(config: NetworkConfig, peer_message_handler: H) -> Self {
+        let (to_p2p_network, from_p2p_network) = mpsc::channel(config.mailbox_size);
+
         Self {
             configs: config,
             hotstuff,
+            to_p2p_network,
+            from_p2p_network,
+            peer_manager: None,
+            peer_message_handler,
+            _marker: PhantomData,
         }
     }
 
-    pub async fn run(self) {
-        // Run peer manager to manage connected peers.
-        let peer_manager = PeerManager::new(self.configs.peer_manager, self.hotstuff);
+    pub async fn run(mut self) {
+        // Run a `PeerManager` to manage connected peers.
+        if self.peer_manager.is_none() {
+            self.peer_manager = Some(PeerManager::new(
+                self.configs.peer_manager,
+                self.peer_message_handler,
+            ));
+        }
+        let peer_manager = self.peer_manager.unwrap();
         let peer_manager_mailbox = peer_manager.mailbox();
         let mut peer_manager_task = tokio::spawn(peer_manager.run());
 
-        // Run dialer to dial peers periodically.
+        // Run a dialer to dial peers periodically.
         let dialer = Dialer::new(self.configs.dialer, peer_manager_mailbox.clone());
         let mut dialer_task = tokio::spawn(dialer.run());
 
-        // Run listener to accept incoming connections.
+        // Run a listener to accept incoming connections.
         let listener = Listener::new(self.configs.listener, peer_manager_mailbox.clone());
         let mut listener_task = tokio::spawn(listener.run());
 

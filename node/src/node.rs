@@ -1,6 +1,6 @@
 use hotstuff_consensus::HotStuff;
 use hotstuff_mempool::{Mempool, MempoolTransaction, Validator};
-use hotstuff_p2p::Network;
+use hotstuff_p2p::P2PNetwork;
 use hotstuff_rpc::RpcServer;
 use tracing::info;
 
@@ -28,7 +28,7 @@ impl Node {
 
         // Run HotStuff consensus protocol.
         let hotstuff = HotStuff::new(self.configs.hotstuff, mempool);
-        let hotstuff_mailbox = hotstuff.mailbox();
+        let hotstuff_handler = hotstuff.handler();
         let hotstuff_mempool = hotstuff.mempool();
         let mut hotstuff_task = tokio::spawn(hotstuff.run());
 
@@ -40,7 +40,7 @@ impl Node {
         let mut rpc_server_task = tokio::spawn(rpc_server.stopped());
 
         // Run P2P network.
-        let p2p_network = Network::new(self.configs.network, hotstuff_mailbox.clone());
+        let p2p_network: P2PNetwork<_, _> = P2PNetwork::new(self.configs.network, hotstuff_handler.clone());
         let mut p2p_network_task = tokio::spawn(p2p_network.run());
 
         match tokio::try_join!(
