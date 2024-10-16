@@ -8,7 +8,7 @@ mod peer;
 mod peer_manager;
 
 pub use config::NetworkConfig;
-pub use network::Network;
+pub use network::P2PNetwork;
 
 pub(crate) use config::{DialerConfig, ListenerConfig, PeerManagerConfig};
 pub(crate) use dialer::Dialer;

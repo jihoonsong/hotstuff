@@ -4,12 +4,12 @@ use tracing::info;
 
 use crate::{PeerManager, Dialer, Listener, NetworkConfig};
 
-pub struct Network {
+pub struct P2PNetwork {
     configs: NetworkConfig,
     hotstuff: mpsc::Sender<HotStuffMessage>,
 }
 
-impl Network {
+impl P2PNetwork {
     pub fn new(config: NetworkConfig, hotstuff: mpsc::Sender<HotStuffMessage>) -> Self {
         Self {
             configs: config,
