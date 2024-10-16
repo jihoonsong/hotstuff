@@ -8,21 +8,21 @@ use tokio_util::{
 };
 use tracing::info;
 
-use crate::{CoordinatorConfig, CoordinatorMessage, Peer};
+use crate::{PeerManagerConfig, PeerManagerMessage, Peer};
 
 type Writer = SplitSink<Framed<TcpStream, LengthDelimitedCodec>, Bytes>;
 
-pub struct Coordinator {
+pub struct PeerManager {
     max_peers: u16,
     candidate_peers: Vec<SocketAddr>,
     connected_peers: HashMap<SocketAddr, Writer>,
-    dispatcher: mpsc::Sender<CoordinatorMessage>,
-    mailbox: mpsc::Receiver<CoordinatorMessage>,
+    dispatcher: mpsc::Sender<PeerManagerMessage>,
+    mailbox: mpsc::Receiver<PeerManagerMessage>,
     hotstuff: mpsc::Sender<HotStuffMessage>,
 }
 
-impl Coordinator {
-    pub fn new(config: CoordinatorConfig, hotstuff: mpsc::Sender<HotStuffMessage>) -> Self {
+impl PeerManager {
+    pub fn new(config: PeerManagerConfig, hotstuff: mpsc::Sender<HotStuffMessage>) -> Self {
         let (dispatcher, mailbox) = mpsc::channel(config.mailbox_size);
 
         Self {
@@ -38,17 +38,17 @@ impl Coordinator {
     pub async fn run(mut self) {
         while let Some(message) = self.mailbox.recv().await {
             match message {
-                CoordinatorMessage::DialablePeers { respond } => {
+                PeerManagerMessage::DialablePeers { respond } => {
                     respond.send(self.dialable_peers()).unwrap();
                 }
-                CoordinatorMessage::NewPeer { peer, stream } => {
+                PeerManagerMessage::NewPeer { peer, stream } => {
                     self.new_peer(peer, stream).await;
                 }
             }
         }
     }
 
-    pub fn mailbox(&self) -> mpsc::Sender<CoordinatorMessage> {
+    pub fn mailbox(&self) -> mpsc::Sender<PeerManagerMessage> {
         self.dispatcher.clone()
     }
 
@@ -87,3 +87,4 @@ impl Coordinator {
         info!("New connected peer: {peer}");
     }
 }
+

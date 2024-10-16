@@ -2,15 +2,15 @@ use std::net::SocketAddr;
 use tokio::{net::TcpListener, sync::mpsc};
 use tracing::{debug, info};
 
-use crate::{CoordinatorMessage, ListenerConfig, P2PError};
+use crate::{PeerManagerMessage, ListenerConfig, P2PError};
 
 pub struct Listener {
     address: SocketAddr,
-    coordinator: mpsc::Sender<CoordinatorMessage>,
+    coordinator: mpsc::Sender<PeerManagerMessage>,
 }
 
 impl Listener {
-    pub fn new(config: ListenerConfig, coordinator: mpsc::Sender<CoordinatorMessage>) -> Self {
+    pub fn new(config: ListenerConfig, coordinator: mpsc::Sender<PeerManagerMessage>) -> Self {
         Self {
             address: config.address,
             coordinator,
@@ -28,7 +28,7 @@ impl Listener {
                 Ok((stream, peer)) => {
                     info!("Successfully accepted incoming connection from {peer}");
                     self.coordinator
-                        .send(CoordinatorMessage::NewPeer { peer, stream })
+                        .send(PeerManagerMessage::NewPeer { peer, stream })
                         .await
                         .unwrap();
                 }

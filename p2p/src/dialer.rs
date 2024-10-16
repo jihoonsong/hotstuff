@@ -6,15 +6,15 @@ use tokio::{
 };
 use tracing::{debug, info};
 
-use crate::{CoordinatorMessage, DialerConfig, P2PError};
+use crate::{PeerManagerMessage, DialerConfig, P2PError};
 
 pub struct Dialer {
     tick: Duration,
-    coordinator: mpsc::Sender<CoordinatorMessage>,
+    coordinator: mpsc::Sender<PeerManagerMessage>,
 }
 
 impl Dialer {
-    pub fn new(config: DialerConfig, coordinator: mpsc::Sender<CoordinatorMessage>) -> Self {
+    pub fn new(config: DialerConfig, coordinator: mpsc::Sender<PeerManagerMessage>) -> Self {
         Self {
             tick: Duration::from_secs(config.tick),
             coordinator,
@@ -25,7 +25,7 @@ impl Dialer {
         loop {
             let (respond, response) = oneshot::channel();
             self.coordinator
-                .send(CoordinatorMessage::DialablePeers { respond })
+                .send(PeerManagerMessage::DialablePeers { respond })
                 .await
                 .unwrap();
             let dialable_peers = response.await.unwrap();
@@ -40,7 +40,7 @@ impl Dialer {
                         Ok(stream) => {
                             info!("Successfully dialed {peer}");
                             coordinator
-                                .send(CoordinatorMessage::NewPeer { peer, stream })
+                                .send(PeerManagerMessage::NewPeer { peer, stream })
                                 .await
                                 .unwrap();
                         }
