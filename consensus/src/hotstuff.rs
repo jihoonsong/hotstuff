@@ -33,8 +33,8 @@ where
     pub async fn run(mut self) {
         while let Some(message) = self.mailbox.recv().await {
             match message {
-                HotStuffMessage::Dummy { data } => {
-                    info!("Received dummy message: {:?}", data);
+                HotStuffMessage::Dummy {} => {
+                    info!("Received dummy message");
                 }
             }
         }
