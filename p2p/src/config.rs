@@ -3,13 +3,14 @@ use std::net::SocketAddr;
 
 #[derive(Debug, Deserialize)]
 pub struct NetworkConfig {
-    pub coordinator: CoordinatorConfig,
+    pub peer_manager: PeerManagerConfig,
     pub dialer: DialerConfig,
     pub listener: ListenerConfig,
+    pub mailbox_size: usize,
 }
 
 #[derive(Debug, Deserialize)]
-pub struct CoordinatorConfig {
+pub struct PeerManagerConfig {
     pub max_peers: u16,
     pub mailbox_size: usize,
     pub peers: Option<Vec<SocketAddr>>,

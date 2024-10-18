@@ -1,52 +1,93 @@
-use hotstuff_consensus::HotStuffMessage;
+use std::marker::PhantomData;
 use tokio::sync::mpsc;
 use tracing::info;
 
 use crate::{
-    Coordinator, CoordinatorConfig, Dialer, DialerConfig, Listener, ListenerConfig, NetworkConfig,
+    message::{NetworkAction, NetworkMessage, NetworkMessageHandler},
+    Dialer, Listener, NetworkConfig, PeerManager, PeerManagerMessage,
 };
 
-pub struct Network {
-    coordinator: CoordinatorConfig,
-    dialer: DialerConfig,
-    listener: ListenerConfig,
-    hotstuff: mpsc::Sender<HotStuffMessage>,
+pub struct P2PNetwork<M, H>
+where
+    M: NetworkMessage,
+    H: NetworkMessageHandler<M>,
+{
+    configs: NetworkConfig,
+    to_p2p_network: mpsc::Sender<NetworkAction>,
+    from_p2p_network: mpsc::Receiver<NetworkAction>,
+    peer_manager: Option<PeerManager<M, H>>,
+    peer_message_handler: H,
+    _marker: PhantomData<M>,
 }
 
-impl Network {
-    pub fn new(config: NetworkConfig, hotstuff: mpsc::Sender<HotStuffMessage>) -> Self {
+impl<M, H> P2PNetwork<M, H>
+where
+    M: NetworkMessage,
+    H: NetworkMessageHandler<M>,
+{
+    pub fn new(config: NetworkConfig, peer_message_handler: H) -> Self {
+        let (to_p2p_network, from_p2p_network) = mpsc::channel(config.mailbox_size);
+
         Self {
-            coordinator: config.coordinator,
-            dialer: config.dialer,
-            listener: config.listener,
-            hotstuff,
+            configs: config,
+            to_p2p_network,
+            from_p2p_network,
+            peer_manager: None,
+            peer_message_handler,
+            _marker: PhantomData,
         }
     }
 
-    pub async fn run(self) {
-        // Run peer manager to manage connected peers.
-        let coordinator = Coordinator::new(self.coordinator, self.hotstuff);
-        let coordinator_mailbox = coordinator.mailbox();
-        let mut coordinator_task = tokio::spawn(coordinator.run());
+    pub async fn run(mut self) {
+        // Run a `PeerManager` to manage connected peers.
+        if self.peer_manager.is_none() {
+            self.peer_manager = Some(PeerManager::new(
+                self.configs.peer_manager,
+                self.peer_message_handler,
+            ));
+        }
+        let peer_manager = self.peer_manager.unwrap();
+        let peer_manager_mailbox = peer_manager.mailbox();
+        let mut peer_manager_task = tokio::spawn(peer_manager.run());
 
-        // Run dialer to dial peers periodically.
-        let dialer = Dialer::new(self.dialer, coordinator_mailbox.clone());
+        // Run a dialer to dial peers periodically.
+        let dialer = Dialer::new(self.configs.dialer, peer_manager_mailbox.clone());
         let mut dialer_task = tokio::spawn(dialer.run());
 
-        // Run listener to accept incoming connections.
-        let listener = Listener::new(self.listener, coordinator_mailbox.clone());
+        // Run a listener to accept incoming connections.
+        let listener = Listener::new(self.configs.listener, peer_manager_mailbox.clone());
         let mut listener_task = tokio::spawn(listener.run());
 
-        match tokio::try_join!(&mut coordinator_task, &mut dialer_task, &mut listener_task) {
+        // Run a task to listen to incoming `NetworkAction`.
+        let mut network_action_task = tokio::spawn(async move {
+            while let Some(action) = self.from_p2p_network.recv().await {
+                peer_manager_mailbox
+                    .send(PeerManagerMessage::NetworkAction(action))
+                    .await
+                    .unwrap();
+            }
+        });
+
+        match tokio::try_join!(
+            &mut peer_manager_task,
+            &mut dialer_task,
+            &mut listener_task,
+            &mut network_action_task
+        ) {
             Ok(_) => {
                 info!("P2P network tasks completed");
             }
             Err(e) => {
                 info!(error=?e, "An error occured while running P2P network");
-                coordinator_task.abort();
+                peer_manager_task.abort();
                 dialer_task.abort();
                 listener_task.abort();
+                network_action_task.abort();
             }
         };
+    }
+
+    pub fn mailbox(&self) -> mpsc::Sender<NetworkAction> {
+        self.to_p2p_network.clone()
     }
 }

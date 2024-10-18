@@ -4,4 +4,4 @@ mod message;
 
 pub use config::HotStuffConfig;
 pub use hotstuff::HotStuff;
-pub use message::HotStuffMessage;
+pub use message::{HotStuffMessage, HotStuffMessageHandler};

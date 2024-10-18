@@ -6,32 +6,32 @@ use tokio::{
 };
 use tracing::{debug, info};
 
-use crate::{CoordinatorMessage, DialerConfig, P2PError};
+use crate::{DialerConfig, P2PError, PeerManagerMessage};
 
 pub struct Dialer {
     tick: Duration,
-    coordinator: mpsc::Sender<CoordinatorMessage>,
+    to_peer_manager: mpsc::Sender<PeerManagerMessage>,
 }
 
 impl Dialer {
-    pub fn new(config: DialerConfig, coordinator: mpsc::Sender<CoordinatorMessage>) -> Self {
+    pub fn new(config: DialerConfig, to_peer_manager: mpsc::Sender<PeerManagerMessage>) -> Self {
         Self {
             tick: Duration::from_secs(config.tick),
-            coordinator,
+            to_peer_manager,
         }
     }
 
     pub async fn run(self) {
         loop {
             let (respond, response) = oneshot::channel();
-            self.coordinator
-                .send(CoordinatorMessage::DialablePeers { respond })
+            self.to_peer_manager
+                .send(PeerManagerMessage::DialablePeers { respond })
                 .await
                 .unwrap();
             let dialable_peers = response.await.unwrap();
 
             dialable_peers.into_iter().for_each(|peer| {
-                let coordinator = self.coordinator.clone();
+                let to_peer_manager = self.to_peer_manager.clone();
                 tokio::spawn(async move {
                     match TcpStream::connect(peer)
                         .await
@@ -39,8 +39,8 @@ impl Dialer {
                     {
                         Ok(stream) => {
                             info!("Successfully dialed {peer}");
-                            coordinator
-                                .send(CoordinatorMessage::NewPeer { peer, stream })
+                            to_peer_manager
+                                .send(PeerManagerMessage::NewPeer { peer, stream })
                                 .await
                                 .unwrap();
                         }

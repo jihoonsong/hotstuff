@@ -6,7 +6,6 @@ license.workspace = true
 rust-version.workspace = true
 
 [dependencies]
-hotstuff-consensus = { workspace = true }
 hotstuff-mempool = { workspace = true }
 
 tokio = { version = "1", features = ["full"] }
