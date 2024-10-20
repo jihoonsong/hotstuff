@@ -6,7 +6,7 @@ use std::net::SocketAddr;
 
 #[derive(Debug, Deserialize)]
 pub struct NodeConfig {
-    pub identity: String,
+    pub identity: SocketAddr,
     pub committee: Vec<SocketAddr>,
     pub hotstuff: HotStuffConfig,
     pub rpc: RpcConfig,

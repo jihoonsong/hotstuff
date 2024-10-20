@@ -7,16 +7,12 @@ use tracing::info;
 use crate::NodeConfig;
 
 pub struct Node {
-    _identity: String, // TODO: Use cryptographic public key.
     configs: NodeConfig,
 }
 
 impl Node {
     pub fn new(config: NodeConfig) -> Self {
-        Self {
-            _identity: config.identity.clone(),
-            configs: config,
-        }
+        Self { configs: config }
     }
 
     pub async fn run(self) {
@@ -28,7 +24,12 @@ impl Node {
         let leader_elector = RoundRobinLeaderElector::new(self.configs.committee);
 
         // Create a HotStuff consensus protocol.
-        let mut hotstuff = HotStuff::new(self.configs.hotstuff, mempool, leader_elector);
+        let mut hotstuff = HotStuff::new(
+            self.configs.hotstuff,
+            mempool,
+            leader_elector,
+            self.configs.identity,
+        );
         let hotstuff_handler = hotstuff.handler();
         let hotstuff_mempool = hotstuff.mempool();
 

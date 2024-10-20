@@ -1,6 +1,6 @@
 use hotstuff_mempool::{Transaction, TransactionPool};
 use hotstuff_p2p::NetworkAction;
-use std::sync::Arc;
+use std::{net::SocketAddr, sync::Arc};
 use tokio::sync::mpsc;
 use tracing::info;
 
@@ -18,6 +18,7 @@ where
     to_network: Option<mpsc::Sender<NetworkAction>>,
     timeout: Timeout,
     leader_elector: L,
+    identity: SocketAddr,
 }
 
 impl<T, P, L> HotStuff<T, P, L>
@@ -26,7 +27,12 @@ where
     P: TransactionPool<Transaction = T>,
     L: LeaderElector,
 {
-    pub fn new(config: HotStuffConfig, mempool: P, leader_elector: L) -> Self {
+    pub fn new(
+        config: HotStuffConfig,
+        mempool: P,
+        leader_elector: L,
+        identity: SocketAddr,
+    ) -> Self {
         let (to_hotstuff, from_hotstuff) = mpsc::channel(config.mailbox_size);
         let handler = HotStuffMessageHandler { to_hotstuff };
         let timeout = Timeout::new(config.timeout);
@@ -38,6 +44,7 @@ where
             to_network: None,
             timeout,
             leader_elector,
+            identity,
         }
     }
 
