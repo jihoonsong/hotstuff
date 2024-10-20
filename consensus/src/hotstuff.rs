@@ -4,7 +4,7 @@ use std::sync::Arc;
 use tokio::sync::mpsc;
 use tracing::info;
 
-use crate::{HotStuffConfig, HotStuffMessage, HotStuffMessageHandler};
+use crate::{HotStuffConfig, HotStuffMessage, HotStuffMessageHandler, Timeout};
 
 pub struct HotStuff<T, P>
 where
@@ -15,6 +15,7 @@ where
     handler: HotStuffMessageHandler,
     mempool: Arc<P>,
     to_network: Option<mpsc::Sender<NetworkAction>>,
+    timeout: Timeout,
 }
 
 impl<T, P> HotStuff<T, P>
@@ -25,12 +26,14 @@ where
     pub fn new(config: HotStuffConfig, mempool: P) -> Self {
         let (to_hotstuff, from_hotstuff) = mpsc::channel(config.mailbox_size);
         let handler = HotStuffMessageHandler { to_hotstuff };
+        let timeout = Timeout::new(config.timeout);
 
         Self {
             from_hotstuff,
             handler,
             mempool: Arc::new(mempool),
             to_network: None,
+            timeout,
         }
     }
 
@@ -42,7 +45,7 @@ where
                         info!("Received dummy message");
                     }
                 },
-                // TODO: Timer comes here.
+                () = &mut self.timeout => self.timeout().await,
             }
         }
     }
@@ -57,5 +60,9 @@ where
 
     pub fn set_network(&mut self, network: mpsc::Sender<NetworkAction>) {
         self.to_network = Some(network);
+    }
+
+    async fn timeout(&self) {
+        info!("timeout!");
     }
 }
