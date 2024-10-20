@@ -6,7 +6,7 @@ use tokio::{
 };
 use tracing::{debug, info};
 
-use crate::{DialerConfig, P2PError, PeerManagerMessage};
+use crate::{DialerConfig, NetworkError, PeerManagerMessage};
 
 pub struct Dialer {
     tick: Duration,
@@ -35,7 +35,7 @@ impl Dialer {
                 tokio::spawn(async move {
                     match TcpStream::connect(peer)
                         .await
-                        .map_err(|e| P2PError::Dial(peer, e))
+                        .map_err(|e| NetworkError::Dial(peer, e))
                     {
                         Ok(stream) => {
                             info!("Successfully dialed {peer}");

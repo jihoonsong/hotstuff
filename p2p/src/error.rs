@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 use thiserror::Error;
 
 #[derive(Debug, Error)]
-pub enum P2PError {
+pub enum NetworkError {
     #[error("Failed to dial {0}: {1}")]
     Dial(SocketAddr, std::io::Error),
 

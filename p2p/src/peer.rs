@@ -4,10 +4,7 @@ use tokio::net::TcpStream;
 use tokio_util::codec::{Framed, LengthDelimitedCodec};
 use tracing::debug;
 
-use crate::{
-    message::{NetworkMessage, NetworkMessageHandler},
-    P2PError,
-};
+use crate::{NetworkError, NetworkMessage, NetworkMessageHandler};
 
 pub struct Peer<M, H>
 where
@@ -38,7 +35,7 @@ where
 
     pub async fn run(mut self) {
         while let Some(frame) = self.reader.next().await {
-            match frame.map_err(|e| P2PError::ReceiveMessage(self.identity, e)) {
+            match frame.map_err(|e| NetworkError::ReceiveMessage(self.identity, e)) {
                 Ok(data) => {
                     self.peer_message_handler
                         .handle_message(M::decode(data.freeze()))
