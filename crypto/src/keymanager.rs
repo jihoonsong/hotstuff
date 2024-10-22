@@ -3,10 +3,10 @@ use blsttc::{PublicKeySet, SecretKeySet};
 use crate::keypair::KeyPair;
 
 // KeyManager is a single trusted dealer that generates keys for a group of users.
-// It is reponsible for holding public key set and secret key set.
+// It is responsible for holding public key set and secret key set.
 pub struct KeyManager {
     n: usize,
-    pk_set: PublicKeySet,
+    pub pk_set: PublicKeySet,
     sk_set: SecretKeySet,
 }
 

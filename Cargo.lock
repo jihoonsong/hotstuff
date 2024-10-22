@@ -506,20 +506,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "hotstuff-mempool"
-version = "0.1.0"
-dependencies = [
- "parking_lot",
- "thiserror",
-]
-
-[[package]]
 name = "hotstuff-crypto"
 version = "0.1.0"
 dependencies = [
  "blsttc",
  "hex",
  "rand",
+]
+
+[[package]]
+name = "hotstuff-mempool"
+version = "0.1.0"
+dependencies = [
+ "parking_lot",
+ "thiserror",
 ]
 
 [[package]]
