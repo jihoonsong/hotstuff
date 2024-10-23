@@ -1,6 +1,6 @@
 use std::fmt;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum TransactionKind {
     Mempool,
     Placeholder, // To be replaced.
@@ -12,7 +12,7 @@ impl fmt::Display for TransactionKind {
     }
 }
 
-#[derive(Clone)]
+#[derive(Clone, Eq, PartialEq, Hash)]
 pub struct MempoolTransaction {
     pub nonce: u128,
     pub data: String,

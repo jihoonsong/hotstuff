@@ -1,5 +1,5 @@
 use parking_lot::RwLock;
-use std::future::Future;
+use std::{collections::HashSet, future::Future, hash::Hash};
 
 use crate::{error::MempoolError, Transaction, TransactionValidationResult, TransactionValidator};
 
@@ -36,6 +36,15 @@ pub trait TransactionPool {
     ) -> impl Future<Output = Result<String, Self::TransactionError>> + Send;
 }
 
+pub trait TransactionPoolExt: TransactionPool {
+    fn pending_transactions(&self) -> impl Future<Output = Vec<Self::Transaction>> + Send;
+
+    fn on_block_commit(
+        &self,
+        committed_transactions: Vec<Self::Transaction>,
+    ) -> impl Future<Output = ()> + Send;
+}
+
 impl<T, V> TransactionPool for Mempool<T, V>
 where
     T: Transaction + Send + Sync,
@@ -59,5 +68,22 @@ where
                 Err(Self::TransactionError::InvalidTransaction(error))
             }
         }
+    }
+}
+
+impl<T, V> TransactionPoolExt for Mempool<T, V>
+where
+    T: Transaction + Send + Sync + Clone + Eq + Hash,
+    V: TransactionValidator<Transaction = T> + Send + Sync,
+{
+    async fn pending_transactions(&self) -> Vec<Self::Transaction> {
+        self.transactions.read().clone()
+    }
+
+    async fn on_block_commit(&self, committed_transactions: Vec<Self::Transaction>) {
+        let committed_transactions: HashSet<_> = committed_transactions.into_iter().collect();
+        self.transactions
+            .write()
+            .retain(|tx| !committed_transactions.contains(tx));
     }
 }
