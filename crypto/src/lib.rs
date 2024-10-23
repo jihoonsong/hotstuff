@@ -1,7 +1,7 @@
-mod keymanager;
+mod aggregate;
 mod keypair;
-mod utils;
+mod signature;
 
-pub use keymanager::KeyManager;
-pub use keypair::KeyPair;
-pub use utils::{combine_signatures, verify};
+pub use aggregate::Aggregator;
+pub use keypair::{generate_random_keypairs, KeyPair, PublicKey, SecretKey};
+pub use signature::Signature;
