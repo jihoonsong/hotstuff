@@ -1,4 +1,4 @@
-use hotstuff_mempool::{Transaction, TransactionPool};
+use hotstuff_mempool::{Transaction, TransactionPoolExt};
 use hotstuff_p2p::NetworkAction;
 use std::{net::SocketAddr, sync::Arc};
 use tokio::sync::mpsc;
@@ -9,7 +9,7 @@ use crate::{HotStuffConfig, HotStuffMessage, HotStuffMessageHandler, LeaderElect
 pub struct HotStuff<T, P, L>
 where
     T: Transaction,
-    P: TransactionPool<Transaction = T>,
+    P: TransactionPoolExt<Transaction = T>,
     L: LeaderElector,
 {
     from_hotstuff: mpsc::Receiver<HotStuffMessage>,
@@ -24,7 +24,7 @@ where
 impl<T, P, L> HotStuff<T, P, L>
 where
     T: Transaction,
-    P: TransactionPool<Transaction = T>,
+    P: TransactionPoolExt<Transaction = T>,
     L: LeaderElector,
 {
     pub fn new(
