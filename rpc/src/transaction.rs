@@ -4,7 +4,10 @@ use std::future::Future;
 use crate::{FromRpcError, RpcApiError, TransactionRequest};
 
 pub(crate) trait RpcApiTransaction {
-    type Pool: TransactionPool<Transaction = MempoolTransaction, TransactionError = MempoolError>;
+    type Pool: TransactionPool<
+        Transaction = MempoolTransaction,
+        TransactionPoolError = MempoolError,
+    >;
 
     fn pool(&self) -> &Self::Pool;
 

@@ -28,12 +28,12 @@ where
 pub trait TransactionPool {
     type Transaction: Transaction;
 
-    type TransactionError;
+    type TransactionPoolError;
 
     fn add_transaction(
         &self,
         transaction: Self::Transaction,
-    ) -> impl Future<Output = Result<String, Self::TransactionError>> + Send;
+    ) -> impl Future<Output = Result<String, Self::TransactionPoolError>> + Send;
 }
 
 pub trait TransactionPoolExt: TransactionPool {
@@ -52,12 +52,12 @@ where
 {
     type Transaction = T;
 
-    type TransactionError = MempoolError;
+    type TransactionPoolError = MempoolError;
 
     async fn add_transaction(
         &self,
         transaction: Self::Transaction,
-    ) -> Result<String, Self::TransactionError> {
+    ) -> Result<String, Self::TransactionPoolError> {
         match self.validator.validate(transaction).await {
             TransactionValidationResult::Valid(transaction) => {
                 let hash = transaction.hash();
@@ -65,7 +65,7 @@ where
                 Ok(hash)
             }
             TransactionValidationResult::Invalid(_, error) => {
-                Err(Self::TransactionError::InvalidTransaction(error))
+                Err(Self::TransactionPoolError::InvalidTransaction(error))
             }
         }
     }
