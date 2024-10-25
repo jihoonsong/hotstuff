@@ -24,6 +24,9 @@ where
 }
 
 pub enum NetworkAction {
+    IsReady {
+        reply: oneshot::Sender<bool>,
+    },
     Send {
         recipient: SocketAddr,
         message: Bytes,
@@ -35,7 +38,7 @@ pub enum NetworkAction {
 
 pub(crate) enum PeerManagerMessage {
     DialablePeers {
-        respond: oneshot::Sender<Vec<SocketAddr>>,
+        reply: oneshot::Sender<Vec<SocketAddr>>,
     },
     NewPeer {
         peer: SocketAddr,

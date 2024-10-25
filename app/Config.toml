@@ -2,44 +2,57 @@
 nodes = ["127.0.0.1:50011", "127.0.0.1:50012", "127.0.0.1:50013", "127.0.0.1:50014"]
 
 [[nodes]]
-identity = "node1"
+identity = "127.0.0.1:50011"
+committee = ["127.0.0.1:50011", "127.0.0.1:50012", "127.0.0.1:50013", "127.0.0.1:50014"]
 hotstuff.mailbox_size = 256
+hotstuff.timeout = 5000
 rpc.address = "127.0.0.1:50011"
+network.peer_manager.min_peers = 4
 network.peer_manager.max_peers = 4
 network.peer_manager.mailbox_size = 256
-network.peer_manager.peers = ["127.0.0.1:30012", "127.0.0.1:30013", "127.0.0.1:30014"]
+network.peer_manager.peers = ["127.0.0.1:30011", "127.0.0.1:30012", "127.0.0.1:30013", "127.0.0.1:30014"]
 network.dialer.tick = 5
 network.listener.address = "127.0.0.1:30011"
 network.mailbox_size = 256
 
 [[nodes]]
-identity = "node2"
+identity = "127.0.0.1:50012"
+committee = ["127.0.0.1:50011", "127.0.0.1:50012", "127.0.0.1:50013", "127.0.0.1:50014"]
 hotstuff.mailbox_size = 256
+hotstuff.timeout = 5000
 rpc.address = "127.0.0.1:50012"
+network.peer_manager.min_peers = 4
 network.peer_manager.max_peers = 4
 network.peer_manager.mailbox_size = 256
-network.peer_manager.peers = ["127.0.0.1:30013", "127.0.0.1:30014"]
+network.peer_manager.peers = ["127.0.0.1:30012", "127.0.0.1:30013", "127.0.0.1:30014"]
 network.dialer.tick = 5
 network.listener.address = "127.0.0.1:30012"
 network.mailbox_size = 256
 
 [[nodes]]
-identity = "node3"
+identity = "127.0.0.1:50013"
+committee = ["127.0.0.1:50011", "127.0.0.1:50012", "127.0.0.1:50013", "127.0.0.1:50014"]
 hotstuff.mailbox_size = 256
+hotstuff.timeout = 5000
 rpc.address = "127.0.0.1:50013"
+network.peer_manager.min_peers = 4
 network.peer_manager.max_peers = 4
 network.peer_manager.mailbox_size = 256
-network.peer_manager.peers = [ "127.0.0.1:30014"]
+network.peer_manager.peers = ["127.0.0.1:30013", "127.0.0.1:30014"]
 network.dialer.tick = 5
 network.listener.address = "127.0.0.1:30013"
 network.mailbox_size = 256
 
 [[nodes]]
-identity = "node4"
+identity = "127.0.0.1:50014"
+committee = ["127.0.0.1:50011", "127.0.0.1:50012", "127.0.0.1:50013", "127.0.0.1:50014"]
 hotstuff.mailbox_size = 256
+hotstuff.timeout = 5000
 rpc.address = "127.0.0.1:50014"
+network.peer_manager.min_peers = 4
 network.peer_manager.max_peers = 4
 network.peer_manager.mailbox_size = 256
+network.peer_manager.peers = ["127.0.0.1:30014"]
 network.dialer.tick = 5
 network.listener.address = "127.0.0.1:30014"
 network.mailbox_size = 256

@@ -2,7 +2,7 @@ use std::net::SocketAddr;
 use tokio::{net::TcpListener, sync::mpsc};
 use tracing::{debug, info};
 
-use crate::{ListenerConfig, P2PError, PeerManagerMessage};
+use crate::{ListenerConfig, NetworkError, PeerManagerMessage};
 
 pub struct Listener {
     address: SocketAddr,
@@ -24,7 +24,11 @@ impl Listener {
         info!("Start listening on {}", self.address);
 
         loop {
-            match listener.accept().await.map_err(P2PError::AcceptConnection) {
+            match listener
+                .accept()
+                .await
+                .map_err(NetworkError::AcceptConnection)
+            {
                 Ok((stream, peer)) => {
                     info!("Successfully accepted incoming connection from {peer}");
                     self.to_peer_manager

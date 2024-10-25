@@ -1,4 +1,4 @@
-use hotstuff_consensus::HotStuff;
+use hotstuff_consensus::{HotStuff, RoundRobinLeaderElector};
 use hotstuff_mempool::{Mempool, MempoolTransaction, Validator};
 use hotstuff_p2p::P2PNetwork;
 use hotstuff_rpc::RpcServer;
@@ -7,16 +7,12 @@ use tracing::info;
 use crate::NodeConfig;
 
 pub struct Node {
-    _identity: String, // TODO: Use cryptographic public key.
     configs: NodeConfig,
 }
 
 impl Node {
     pub fn new(config: NodeConfig) -> Self {
-        Self {
-            _identity: config.identity.clone(),
-            configs: config,
-        }
+        Self { configs: config }
     }
 
     pub async fn run(self) {
@@ -24,8 +20,16 @@ impl Node {
         let validator = Validator::<MempoolTransaction>::default();
         let mempool = Mempool::<MempoolTransaction, Validator<MempoolTransaction>>::new(validator);
 
+        // Create a leader elector.
+        let leader_elector = RoundRobinLeaderElector::new(self.configs.committee);
+
         // Create a HotStuff consensus protocol.
-        let mut hotstuff = HotStuff::new(self.configs.hotstuff, mempool);
+        let mut hotstuff = HotStuff::new(
+            self.configs.hotstuff,
+            mempool,
+            leader_elector,
+            self.configs.identity,
+        );
         let hotstuff_handler = hotstuff.handler();
         let hotstuff_mempool = hotstuff.mempool();
 

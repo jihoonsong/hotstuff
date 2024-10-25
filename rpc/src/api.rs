@@ -7,7 +7,7 @@ use crate::{RpcApiError, RpcApiTransaction, RpcApis, RpcError, TransactionReques
 
 pub(crate) struct RpcApi<T>
 where
-    T: TransactionPool<Transaction = MempoolTransaction, TransactionError = MempoolError>
+    T: TransactionPool<Transaction = MempoolTransaction, TransactionPoolError = MempoolError>
         + Send
         + Sync
         + 'static,
@@ -17,7 +17,7 @@ where
 
 impl<T> RpcApi<T>
 where
-    T: TransactionPool<Transaction = MempoolTransaction, TransactionError = MempoolError>
+    T: TransactionPool<Transaction = MempoolTransaction, TransactionPoolError = MempoolError>
         + Send
         + Sync
         + 'static,
@@ -46,7 +46,7 @@ where
 
 impl<T> RpcApiError for RpcApi<T>
 where
-    T: TransactionPool<Transaction = MempoolTransaction, TransactionError = MempoolError>
+    T: TransactionPool<Transaction = MempoolTransaction, TransactionPoolError = MempoolError>
         + Send
         + Sync
         + 'static,
@@ -56,7 +56,7 @@ where
 
 impl<T> RpcApiTransaction for RpcApi<T>
 where
-    T: TransactionPool<Transaction = MempoolTransaction, TransactionError = MempoolError>
+    T: TransactionPool<Transaction = MempoolTransaction, TransactionPoolError = MempoolError>
         + Send
         + Sync
         + 'static,
