@@ -68,10 +68,10 @@ where
             tokio::select! {
                 Some(message) = self.from_hotstuff.recv() => match message {
                     HotStuffMessage::Proposal(block) => {
-                        info!("Received a proposal {:?}", block);
+                        self.handle_proposal(block).await;
                     },
                 },
-                () = &mut self.timeout => self.timeout().await,
+                () = &mut self.timeout => self.handle_timeout().await,
             }
         }
     }
@@ -126,7 +126,11 @@ where
             .unwrap();
     }
 
-    async fn timeout(&self) {
+    async fn handle_proposal(&self, block: Block<T>) {
+        info!("Received a proposal {:?}", block);
+    }
+
+    async fn handle_timeout(&self) {
         info!("timeout!");
     }
 }
