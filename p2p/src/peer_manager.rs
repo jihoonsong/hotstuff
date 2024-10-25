@@ -56,14 +56,14 @@ where
     pub async fn run(mut self) {
         while let Some(message) = self.from_peer_manager.recv().await {
             match message {
-                PeerManagerMessage::DialablePeers { respond } => {
-                    respond.send(self.dialable_peers()).unwrap();
+                PeerManagerMessage::DialablePeers { reply } => {
+                    reply.send(self.dialable_peers()).unwrap();
                 }
                 PeerManagerMessage::NewPeer { peer, stream } => {
                     self.new_peer(peer, stream).await;
                 }
-                PeerManagerMessage::NetworkAction(NetworkAction::IsReady { respond }) => {
-                    self.is_ready(respond).await;
+                PeerManagerMessage::NetworkAction(NetworkAction::IsReady { reply }) => {
+                    self.is_ready(reply).await;
                 }
                 PeerManagerMessage::NetworkAction(NetworkAction::Send { recipient, message }) => {
                     self.send(recipient, message).await;
@@ -114,8 +114,8 @@ where
         info!("New connected peer: {peer}");
     }
 
-    async fn is_ready(&mut self, respond: oneshot::Sender<bool>) {
-        respond
+    async fn is_ready(&mut self, reply: oneshot::Sender<bool>) {
+        reply
             .send(self.connected_peers.len() >= self.min_peers as usize)
             .unwrap();
     }

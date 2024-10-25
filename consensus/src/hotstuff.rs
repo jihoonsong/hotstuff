@@ -90,12 +90,12 @@ where
 
     async fn wait_for_network_ready(&self) {
         loop {
-            let (respond, response) = oneshot::channel();
+            let (reply, response) = oneshot::channel();
 
             self.to_network
                 .as_ref()
                 .unwrap()
-                .send(NetworkAction::IsReady { respond })
+                .send(NetworkAction::IsReady { reply })
                 .await
                 .unwrap();
 

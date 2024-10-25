@@ -23,9 +23,9 @@ impl Dialer {
 
     pub async fn run(self) {
         loop {
-            let (respond, response) = oneshot::channel();
+            let (reply, response) = oneshot::channel();
             self.to_peer_manager
-                .send(PeerManagerMessage::DialablePeers { respond })
+                .send(PeerManagerMessage::DialablePeers { reply })
                 .await
                 .unwrap();
             let dialable_peers = response.await.unwrap();
