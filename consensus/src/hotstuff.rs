@@ -1,11 +1,11 @@
 use hotstuff_mempool::{Transaction, TransactionPoolExt};
-use hotstuff_p2p::NetworkAction;
+use hotstuff_p2p::{Encodable, NetworkAction};
 use std::{net::SocketAddr, sync::Arc};
 use tokio::sync::mpsc;
 use tracing::info;
 
 use crate::{
-    Block, HotStuffConfig, HotStuffMessage, HotStuffMessageHandler, LeaderElector, Timeout,
+    Block, HotStuffConfig, HotStuffMessage, HotStuffMessageHandler, LeaderElector, Round, Timeout,
 };
 
 pub struct HotStuff<T, P, L>
@@ -21,6 +21,7 @@ where
     timeout: Timeout,
     leader_elector: L,
     identity: SocketAddr,
+    round: Round,
 }
 
 impl<T, P, L> HotStuff<T, P, L>
@@ -38,6 +39,7 @@ where
         let (to_hotstuff, from_hotstuff) = mpsc::channel(config.mailbox_size);
         let handler = HotStuffMessageHandler { to_hotstuff };
         let timeout = Timeout::new(config.timeout);
+        let round = Round::default();
 
         Self {
             from_hotstuff,
@@ -47,10 +49,18 @@ where
             timeout,
             leader_elector,
             identity,
+            round,
         }
     }
 
     pub async fn run(mut self) {
+        // Reset timer and propose a block if we are the leader.
+        self.timeout.reset();
+        if self.identity == self.leader_elector.leader(self.round) {
+            self.propose().await;
+        }
+        // Now we are guaranteed to make a progress.
+
         loop {
             tokio::select! {
                 Some(message) = self.from_hotstuff.recv() => match message {
@@ -73,6 +83,23 @@ where
 
     pub fn set_network(&mut self, network: mpsc::Sender<NetworkAction>) {
         self.to_network = Some(network);
+    }
+
+    async fn propose(&mut self) {
+        let block = Block::new(
+            self.identity,
+            self.round,
+            self.mempool.pending_transactions().await,
+        );
+
+        self.to_network
+            .as_mut()
+            .unwrap()
+            .send(NetworkAction::Broadcast {
+                message: HotStuffMessage::Proposal(block).encode(),
+            })
+            .await
+            .unwrap();
     }
 
     async fn timeout(&self) {
