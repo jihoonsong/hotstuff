@@ -1,6 +1,7 @@
-use std::fmt;
+use serde::{de::DeserializeOwned, Deserialize, Serialize};
+use std::fmt::{self, Debug};
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
 pub enum TransactionKind {
     Mempool,
     Placeholder, // To be replaced.
@@ -12,14 +13,16 @@ impl fmt::Display for TransactionKind {
     }
 }
 
-#[derive(Clone, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Serialize, Deserialize, Eq, PartialEq, Hash)]
 pub struct MempoolTransaction {
     pub nonce: u128,
     pub data: String,
     pub kind: TransactionKind,
 }
 
-pub trait Transaction {
+pub trait Transaction:
+    Serialize + DeserializeOwned + Debug + Clone + Send + Sync + 'static
+{
     fn hash(&self) -> String;
 
     fn nonce(&self) -> u128;

@@ -4,7 +4,9 @@ use std::{net::SocketAddr, sync::Arc};
 use tokio::sync::mpsc;
 use tracing::info;
 
-use crate::{HotStuffConfig, HotStuffMessage, HotStuffMessageHandler, LeaderElector, Timeout};
+use crate::{
+    Block, HotStuffConfig, HotStuffMessage, HotStuffMessageHandler, LeaderElector, Timeout,
+};
 
 pub struct HotStuff<T, P, L>
 where
@@ -12,8 +14,8 @@ where
     P: TransactionPoolExt<Transaction = T>,
     L: LeaderElector,
 {
-    from_hotstuff: mpsc::Receiver<HotStuffMessage>,
-    handler: HotStuffMessageHandler,
+    from_hotstuff: mpsc::Receiver<HotStuffMessage<T>>,
+    handler: HotStuffMessageHandler<T>,
     mempool: Arc<P>,
     to_network: Option<mpsc::Sender<NetworkAction>>,
     timeout: Timeout,
@@ -52,16 +54,16 @@ where
         loop {
             tokio::select! {
                 Some(message) = self.from_hotstuff.recv() => match message {
-                    HotStuffMessage::Dummy {} => {
-                        info!("Received dummy message");
-                    }
+                    HotStuffMessage::Proposal(block) => {
+                        info!("Received a proposal {:?}", block);
+                    },
                 },
                 () = &mut self.timeout => self.timeout().await,
             }
         }
     }
 
-    pub fn handler(&self) -> HotStuffMessageHandler {
+    pub fn handler(&self) -> HotStuffMessageHandler<T> {
         self.handler.clone()
     }
 
