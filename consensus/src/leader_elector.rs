@@ -1,6 +1,6 @@
 use std::net::SocketAddr;
 
-pub type Round = u64;
+use crate::Round;
 
 pub trait LeaderElector {
     // TODO: Use cryptographic public key instead of SocketAddr as an identifier.
