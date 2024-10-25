@@ -9,14 +9,14 @@ pub enum TransactionValidationResult<T: Transaction> {
 
 pub struct Validator<T>
 where
-    T: Transaction + Send + Sync + Clone,
+    T: Transaction,
 {
     _phantom: PhantomData<T>,
 }
 
 impl<T> Validator<T>
 where
-    T: Transaction + Send + Sync + Clone,
+    T: Transaction,
 {
     pub fn new() -> Self {
         Self {
@@ -27,14 +27,14 @@ where
 
 impl<T> Default for Validator<T>
 where
-    T: Transaction + Send + Sync + Clone,
+    T: Transaction,
 {
     fn default() -> Self {
         Self::new()
     }
 }
 
-pub trait TransactionValidator {
+pub trait TransactionValidator: Send + Sync {
     type Transaction: Transaction;
 
     fn validate(
@@ -45,7 +45,7 @@ pub trait TransactionValidator {
 
 impl<T> TransactionValidator for Validator<T>
 where
-    T: Transaction + Send + Sync + Clone,
+    T: Transaction,
 {
     type Transaction = T;
 

@@ -5,8 +5,8 @@ use crate::{error::MempoolError, Transaction, TransactionValidationResult, Trans
 
 pub struct Mempool<T, V>
 where
-    T: Transaction + Send + Sync,
-    V: TransactionValidator<Transaction = T> + Send + Sync,
+    T: Transaction,
+    V: TransactionValidator<Transaction = T>,
 {
     validator: V,
     transactions: RwLock<Vec<T>>,
@@ -14,8 +14,8 @@ where
 
 impl<T, V> Mempool<T, V>
 where
-    T: Transaction + Send + Sync,
-    V: TransactionValidator<Transaction = T> + Send + Sync,
+    T: Transaction,
+    V: TransactionValidator<Transaction = T>,
 {
     pub fn new(validator: V) -> Self {
         Self {
@@ -47,8 +47,8 @@ pub trait TransactionPoolExt: TransactionPool {
 
 impl<T, V> TransactionPool for Mempool<T, V>
 where
-    T: Transaction + Send + Sync,
-    V: TransactionValidator<Transaction = T> + Send + Sync,
+    T: Transaction,
+    V: TransactionValidator<Transaction = T>,
 {
     type Transaction = T;
 
@@ -73,8 +73,8 @@ where
 
 impl<T, V> TransactionPoolExt for Mempool<T, V>
 where
-    T: Transaction + Send + Sync + Clone + Eq + Hash,
-    V: TransactionValidator<Transaction = T> + Send + Sync,
+    T: Transaction + Eq + Hash,
+    V: TransactionValidator<Transaction = T>,
 {
     async fn pending_transactions(&self) -> Vec<Self::Transaction> {
         self.transactions.read().clone()
