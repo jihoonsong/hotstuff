@@ -1,6 +1,10 @@
 use futures::{future::join_all, stream::SplitSink, SinkExt, StreamExt};
 use std::{collections::HashMap, marker::PhantomData, net::SocketAddr};
-use tokio::{io::AsyncWriteExt, net::TcpStream, sync::mpsc};
+use tokio::{
+    io::AsyncWriteExt,
+    net::TcpStream,
+    sync::{mpsc, oneshot},
+};
 use tokio_util::{
     bytes::Bytes,
     codec::{Framed, LengthDelimitedCodec},
@@ -19,6 +23,7 @@ where
     M: NetworkMessage,
     H: NetworkMessageHandler<M>,
 {
+    min_peers: u16,
     max_peers: u16,
     candidate_peers: Vec<SocketAddr>,
     connected_peers: HashMap<SocketAddr, Writer>,
@@ -37,6 +42,7 @@ where
         let (to_peer_manager, from_peer_manager) = mpsc::channel(config.mailbox_size);
 
         Self {
+            min_peers: config.min_peers,
             max_peers: config.max_peers,
             candidate_peers: config.peers.unwrap_or_default(),
             connected_peers: HashMap::new(),
@@ -55,6 +61,9 @@ where
                 }
                 PeerManagerMessage::NewPeer { peer, stream } => {
                     self.new_peer(peer, stream).await;
+                }
+                PeerManagerMessage::NetworkAction(NetworkAction::IsReady { respond }) => {
+                    self.is_ready(respond).await;
                 }
                 PeerManagerMessage::NetworkAction(NetworkAction::Send { recipient, message }) => {
                     self.send(recipient, message).await;
@@ -103,6 +112,12 @@ where
         });
 
         info!("New connected peer: {peer}");
+    }
+
+    async fn is_ready(&mut self, respond: oneshot::Sender<bool>) {
+        respond
+            .send(self.connected_peers.len() >= self.min_peers as usize)
+            .unwrap();
     }
 
     async fn send(&mut self, recipient: SocketAddr, message: Bytes) {

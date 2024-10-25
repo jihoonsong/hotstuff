@@ -24,6 +24,9 @@ where
 }
 
 pub enum NetworkAction {
+    IsReady {
+        respond: oneshot::Sender<bool>,
+    },
     Send {
         recipient: SocketAddr,
         message: Bytes,

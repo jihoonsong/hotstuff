@@ -1,7 +1,7 @@
 use hotstuff_mempool::{Transaction, TransactionPoolExt};
 use hotstuff_p2p::{Encodable, NetworkAction};
-use std::{net::SocketAddr, sync::Arc};
-use tokio::sync::mpsc;
+use std::{net::SocketAddr, sync::Arc, thread, time::Duration};
+use tokio::sync::{mpsc, oneshot};
 use tracing::info;
 
 use crate::{
@@ -54,6 +54,9 @@ where
     }
 
     pub async fn run(mut self) {
+        // Wait for the network to be ready.
+        self.wait_for_network_ready().await;
+
         // Reset timer and propose a block if we are the leader.
         self.timeout.reset();
         if self.identity == self.leader_elector.leader(self.round) {
@@ -83,6 +86,27 @@ where
 
     pub fn set_network(&mut self, network: mpsc::Sender<NetworkAction>) {
         self.to_network = Some(network);
+    }
+
+    async fn wait_for_network_ready(&self) {
+        loop {
+            let (respond, response) = oneshot::channel();
+
+            self.to_network
+                .as_ref()
+                .unwrap()
+                .send(NetworkAction::IsReady { respond })
+                .await
+                .unwrap();
+
+            if response.await.unwrap() {
+                info!("Network is ready");
+                break;
+            }
+
+            info!("Network is not ready yet");
+            thread::sleep(Duration::from_secs(1));
+        }
     }
 
     async fn propose(&mut self) {

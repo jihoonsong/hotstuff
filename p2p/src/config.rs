@@ -11,6 +11,7 @@ pub struct NetworkConfig {
 
 #[derive(Debug, Deserialize)]
 pub struct PeerManagerConfig {
+    pub min_peers: u16,
     pub max_peers: u16,
     pub mailbox_size: usize,
     pub peers: Option<Vec<SocketAddr>>,
