@@ -32,6 +32,10 @@ impl Signature {
         hex::encode(self.0.to_bytes())
     }
 
+    pub fn to_bytes(&self) -> [u8; SIG_SIZE] {
+        self.0.to_bytes()
+    }
+
     pub fn verify(&self, msg: Vec<u8>, author: PublicKey) -> bool {
         author.verify(self.0.to_bytes(), msg)
     }
