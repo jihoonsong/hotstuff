@@ -40,7 +40,7 @@ impl PublicKey {
         self.0.to_bytes()
     }
 
-    pub fn verify(&self, signature: [u8; SIG_SIZE], msg: Vec<u8>) -> bool {
+    pub fn verify<M: AsRef<[u8]>>(&self, signature: [u8; SIG_SIZE], msg: M) -> bool {
         let signature = SignatureShare::from_bytes(signature).unwrap();
         self.0.verify(&signature, msg)
     }
