@@ -1,6 +1,5 @@
-use std::fmt;
-
 use blsttc::{SignatureShare, SIG_SIZE};
+use std::fmt;
 
 use crate::keypair::PublicKey;
 pub struct Signature(pub SignatureShare);

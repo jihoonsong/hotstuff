@@ -1,39 +1,23 @@
-use std::fmt;
-
 use blsttc::{
     PublicKeyShare, SecretKeySet, SecretKeyShare, SignatureShare, PK_SIZE, SIG_SIZE, SK_SIZE,
 };
+use std::fmt;
 
 use crate::aggregate::Aggregator;
 use crate::signature::Signature;
 
+#[derive(Debug, Clone)]
 pub struct PublicKey(PublicKeyShare);
-
-impl fmt::Debug for PublicKey {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.encode_hex())
-    }
-}
 
 impl fmt::Display for PublicKey {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.encode_hex())
-    }
-}
-
-impl Clone for PublicKey {
-    fn clone(&self) -> Self {
-        Self(PublicKeyShare::from_bytes(self.0.to_bytes()).unwrap())
+        write!(f, "{}", hex::encode(self.to_bytes()))
     }
 }
 
 impl PublicKey {
     pub fn new(raw_bytes: [u8; PK_SIZE]) -> Self {
         Self(PublicKeyShare::from_bytes(raw_bytes).unwrap())
-    }
-
-    pub fn encode_hex(&self) -> String {
-        hex::encode(self.0.to_bytes())
     }
 
     pub fn to_bytes(&self) -> [u8; PK_SIZE] {
@@ -46,23 +30,12 @@ impl PublicKey {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct SecretKey(SecretKeyShare);
-
-impl fmt::Debug for SecretKey {
-    fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.encode_hex())
-    }
-}
 
 impl fmt::Display for SecretKey {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "{}", self.encode_hex())
-    }
-}
-
-impl Clone for SecretKey {
-    fn clone(&self) -> Self {
-        Self(SecretKeyShare::from_bytes(self.0.to_bytes()).unwrap())
+        write!(f, "{}", hex::encode(self.to_bytes()))
     }
 }
 
@@ -74,10 +47,6 @@ impl SecretKey {
     pub fn from_hex(hex: &String) -> Self {
         let raw_bytes = hex::decode(hex).unwrap();
         Self::new(raw_bytes.try_into().unwrap())
-    }
-
-    pub fn encode_hex(&self) -> String {
-        hex::encode(self.0.to_bytes())
     }
 
     pub fn to_bytes(&self) -> [u8; SK_SIZE] {

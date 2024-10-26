@@ -1,6 +1,5 @@
-use std::collections::HashMap;
-
 use blsttc::{Error, PublicKeySet, SignatureShare};
+use std::collections::HashMap;
 
 use crate::keypair::PublicKey;
 use crate::signature::Signature;

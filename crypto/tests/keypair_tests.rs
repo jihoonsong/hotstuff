@@ -4,7 +4,10 @@ use hotstuff_crypto::generate_random_keypairs;
 fn test_encode_hex() {
     let (_, keypairs) = generate_random_keypairs(1, 1);
     let keypair = &keypairs[0];
-    assert_eq!(keypair.pk.encode_hex(), hex::encode(keypair.pk.to_bytes()));
+    assert_eq!(
+        format!("{}", keypair.pk),
+        hex::encode(keypair.pk.to_bytes())
+    );
 }
 
 #[test]

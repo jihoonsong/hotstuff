@@ -1,5 +1,6 @@
-use hotstuff_crypto::generate_random_keypairs;
 use std::collections::HashMap;
+
+use hotstuff_crypto::generate_random_keypairs;
 
 #[test]
 fn test_complete_scenario() {
