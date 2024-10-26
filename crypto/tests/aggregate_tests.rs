@@ -38,3 +38,21 @@ fn test_aggregate_signatures_insufficient() {
         .to_string()
         .contains("Not enough shares"));
 }
+
+#[test]
+fn test_aggregate_signatures_wrong_id() {
+    let (aggregator, keypairs) = generate_random_keypairs(1, 3);
+    let message = b"test message".to_vec();
+
+    let mut signatures = HashMap::new();
+    for (i, keypair) in keypairs.iter().enumerate() {
+        let signature = keypair.sign(message.clone());
+        // Insert the signature with the wrong ID
+        signatures.insert((i + 1) % 3, signature);
+    }
+
+    let result = aggregator.aggregate_signatures(signatures);
+    assert!(result.is_ok());
+    let aggregated_signature = result.unwrap();
+    assert!(aggregated_signature.verify(message, aggregator.pubkey()) == false);
+}
