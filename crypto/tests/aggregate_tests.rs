@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-use hotstuff_crypto::{generate_random_keypairs, Aggregator};
+mod utils;
+use crate::utils::generate_random_keypairs;
 
 #[test]
 fn test_aggregate_signatures() {
@@ -16,13 +17,12 @@ fn test_aggregate_signatures() {
     let result = aggregator.aggregate_signatures(signatures);
     assert!(result.is_ok());
     let aggregated_signature = result.unwrap();
-    assert!(aggregated_signature.verify(message, aggregator.pubkey()));
+    assert!(aggregated_signature.verify(&aggregator.public_key(), message));
 }
 
 #[test]
 fn test_aggregate_signatures_insufficient() {
-    let (public_key_set, keypairs) = generate_random_keypairs(2, 3);
-    let aggregator = Aggregator::new(public_key_set.to_bytes());
+    let (aggregator, keypairs) = generate_random_keypairs(2, 3);
     let message = b"test message".to_vec();
 
     let mut signatures = HashMap::new();
@@ -54,5 +54,5 @@ fn test_aggregate_signatures_wrong_id() {
     let result = aggregator.aggregate_signatures(signatures);
     assert!(result.is_ok());
     let aggregated_signature = result.unwrap();
-    assert!(aggregated_signature.verify(message, aggregator.pubkey()) == false);
+    assert!(aggregated_signature.verify(&aggregator.public_key(), message));
 }

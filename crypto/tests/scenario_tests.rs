@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 
-use hotstuff_crypto::generate_random_keypairs;
+mod utils;
+use crate::utils::generate_random_keypairs;
 
 #[test]
 fn test_complete_scenario() {
@@ -36,7 +37,7 @@ fn test_complete_scenario() {
     println!("Combined signature: {:?}", sig);
 
     // Step 5: Verify the combined signature
-    let result = sig.verify(msg.to_vec(), aggregator.pubkey());
+    let result = sig.verify(&aggregator.public_key(), msg.to_vec());
     assert!(result);
 
     // Step 6: Node 2 signs the message, and the signature is verified
@@ -48,6 +49,6 @@ fn test_complete_scenario() {
     let sig = aggregator
         .aggregate_signatures(signatures)
         .expect("not enough shares");
-    let result = sig.verify(msg.to_vec(), aggregator.pubkey());
+    let result = sig.verify(&aggregator.public_key(), msg.to_vec());
     assert!(result);
 }
