@@ -1,0 +1,11 @@
+[package]
+name = "hotstuff-crypto"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+blsttc = "8.0.2"
+hex = "0.4.3"
+rand = "0.8.5"

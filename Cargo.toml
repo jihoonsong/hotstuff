@@ -3,6 +3,7 @@ members = [
     "app",
     "consensus",
     "mempool",
+    "crypto",
     "node",
     "p2p",
     "rpc",
@@ -15,6 +16,7 @@ hotstuff-mempool = { version = "0.1.0", path = "mempool" }
 hotstuff-node = { version = "0.1.0", path = "node" }
 hotstuff-p2p = { version = "0.1.0", path = "p2p" }
 hotstuff-rpc = { version = "0.1.0", path = "rpc" }
+hotstuff-crypto = { version = "0.1.0", path = "crypto" }
 
 [workspace.package]
 version = "0.1.0"
