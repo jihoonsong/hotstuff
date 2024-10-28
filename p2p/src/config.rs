@@ -1,5 +1,7 @@
+use base64::prelude::{Engine, BASE64_STANDARD};
+use hotstuff_crypto::PublicKey;
 use serde::Deserialize;
-use std::net::SocketAddr;
+use std::{collections::HashMap, net::SocketAddr};
 
 #[derive(Debug, Deserialize)]
 pub struct NetworkConfig {
@@ -14,7 +16,22 @@ pub struct PeerManagerConfig {
     pub min_peers: u16,
     pub max_peers: u16,
     pub mailbox_size: usize,
-    pub peers: Option<Vec<SocketAddr>>,
+    pub peers: HashMap<String, SocketAddr>,
+    pub handshake_timeout: u64,
+}
+
+impl PeerManagerConfig {
+    pub(crate) fn peers(&self) -> HashMap<PublicKey, SocketAddr> {
+        self.peers
+            .iter()
+            .map(|(k, v)| {
+                (
+                    PublicKey::new(BASE64_STANDARD.decode(k).unwrap().try_into().unwrap()),
+                    *v,
+                )
+            })
+            .collect()
+    }
 }
 
 #[derive(Debug, Deserialize)]

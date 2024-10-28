@@ -96,11 +96,11 @@ where
                 .unwrap();
 
             if response.await.unwrap() {
-                info!("Network is ready");
+                info!("{}: Network is ready", self.identity);
                 break;
             }
 
-            info!("Network is not ready yet");
+            info!("{}: Network is not ready yet", self.identity);
             thread::sleep(Duration::from_secs(1));
         }
     }
@@ -126,7 +126,5 @@ where
         info!("{}: Received a proposal {:?}", self.identity, block);
     }
 
-    async fn handle_timeout(&self) {
-        info!("timeout!");
-    }
+    async fn handle_timeout(&self) {}
 }

@@ -5,7 +5,7 @@ use std::fmt;
 
 use crate::signature::Signature;
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct PublicKey(PublicKeyShare);
 
 impl fmt::Display for PublicKey {

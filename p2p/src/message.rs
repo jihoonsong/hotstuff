@@ -1,3 +1,4 @@
+use hotstuff_crypto::PublicKey;
 use std::{fmt::Debug, future::Future, net::SocketAddr};
 use tokio::{net::TcpStream, sync::oneshot};
 use tokio_util::bytes::Bytes;
@@ -9,6 +10,7 @@ pub trait Encodable {
 pub trait Decodable {
     fn decode(data: Bytes) -> Self;
 }
+
 pub trait NetworkMessage: Encodable + Decodable + Send + Sync + 'static {}
 
 pub trait NetworkMessageHandler<M>: Clone + Send + Sync + 'static
@@ -28,7 +30,7 @@ pub enum NetworkAction {
         reply: oneshot::Sender<bool>,
     },
     Send {
-        recipient: SocketAddr,
+        recipient: PublicKey,
         message: Bytes,
     },
     Broadcast {

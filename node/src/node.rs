@@ -35,8 +35,12 @@ impl Node {
         let leader_elector = RoundRobinLeaderElector::new(self.committee);
 
         // Create a HotStuff consensus protocol.
-        let mut hotstuff =
-            HotStuff::new(self.hotstuff_config, mempool, leader_elector, self.identity);
+        let mut hotstuff = HotStuff::new(
+            self.hotstuff_config,
+            mempool,
+            leader_elector,
+            self.identity.clone(),
+        );
         let hotstuff_handler = hotstuff.handler();
         let hotstuff_mempool = hotstuff.mempool();
 
@@ -47,7 +51,11 @@ impl Node {
             .expect("Failed to build RPC server");
 
         // Create a P2P network.
-        let p2p_network = P2PNetwork::new(self.network_config, hotstuff_handler.clone());
+        let p2p_network = P2PNetwork::new(
+            self.network_config,
+            hotstuff_handler.clone(),
+            self.identity.clone(),
+        );
         let p2p_network_mailbox = p2p_network.mailbox();
 
         // Configure the HotStuff consensus protocol.

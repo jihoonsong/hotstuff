@@ -547,7 +547,10 @@ name = "hotstuff-p2p"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "base64",
+ "bincode",
  "futures",
+ "hotstuff-crypto",
  "serde",
  "thiserror",
  "tokio",

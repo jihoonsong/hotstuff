@@ -13,7 +13,8 @@ rpc.address = "127.0.0.1:50011"
 network.peer_manager.min_peers = 4
 network.peer_manager.max_peers = 10
 network.peer_manager.mailbox_size = 256
-network.peer_manager.peers = ["127.0.0.1:30011", "127.0.0.1:30012", "127.0.0.1:30013", "127.0.0.1:30014"]
+network.peer_manager.peers = {"i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX" = "127.0.0.1:30011", "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18" = "127.0.0.1:30012", "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy" = "127.0.0.1:30013", "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy" = "127.0.0.1:30014"}
+network.peer_manager.handshake_timeout = 1000
 network.dialer.tick = 5
 network.listener.address = "127.0.0.1:30011"
 network.mailbox_size = 256
@@ -30,7 +31,8 @@ rpc.address = "127.0.0.1:50012"
 network.peer_manager.min_peers = 4
 network.peer_manager.max_peers = 10
 network.peer_manager.mailbox_size = 256
-network.peer_manager.peers = ["127.0.0.1:30012", "127.0.0.1:30013", "127.0.0.1:30014"]
+network.peer_manager.peers = {"i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX" = "127.0.0.1:30011", "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18" = "127.0.0.1:30012", "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy" = "127.0.0.1:30013", "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy" = "127.0.0.1:30014"}
+network.peer_manager.handshake_timeout = 1000
 network.dialer.tick = 5
 network.listener.address = "127.0.0.1:30012"
 network.mailbox_size = 256
@@ -47,7 +49,8 @@ rpc.address = "127.0.0.1:50013"
 network.peer_manager.min_peers = 4
 network.peer_manager.max_peers = 10
 network.peer_manager.mailbox_size = 256
-network.peer_manager.peers = ["127.0.0.1:30013", "127.0.0.1:30014"]
+network.peer_manager.peers = {"i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX" = "127.0.0.1:30011", "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18" = "127.0.0.1:30012", "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy" = "127.0.0.1:30013", "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy" = "127.0.0.1:30014"}
+network.peer_manager.handshake_timeout = 1000
 network.dialer.tick = 5
 network.listener.address = "127.0.0.1:30013"
 network.mailbox_size = 256
@@ -64,7 +67,8 @@ rpc.address = "127.0.0.1:50014"
 network.peer_manager.min_peers = 4
 network.peer_manager.max_peers = 10
 network.peer_manager.mailbox_size = 256
-network.peer_manager.peers = ["127.0.0.1:30014"]
+network.peer_manager.peers = {"i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX" = "127.0.0.1:30011", "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18" = "127.0.0.1:30012", "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy" = "127.0.0.1:30013", "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy" = "127.0.0.1:30014"}
+network.peer_manager.handshake_timeout = 1000
 network.dialer.tick = 5
 network.listener.address = "127.0.0.1:30014"
 network.mailbox_size = 256
