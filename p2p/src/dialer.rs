@@ -1,22 +1,21 @@
-use std::time::Duration;
 use tokio::{
     net::TcpStream,
     sync::{mpsc, oneshot},
-    time::sleep,
+    time::{sleep, Duration},
 };
 use tracing::{debug, info};
 
 use crate::{DialerConfig, NetworkError, PeerManagerMessage};
 
 pub struct Dialer {
-    tick: Duration,
+    interval: Duration,
     to_peer_manager: mpsc::Sender<PeerManagerMessage>,
 }
 
 impl Dialer {
     pub fn new(config: DialerConfig, to_peer_manager: mpsc::Sender<PeerManagerMessage>) -> Self {
         Self {
-            tick: Duration::from_secs(config.tick),
+            interval: Duration::from_millis(config.interval),
             to_peer_manager,
         }
     }
@@ -30,28 +29,28 @@ impl Dialer {
                 .unwrap();
             let dialable_peers = response.await.unwrap();
 
-            dialable_peers.into_iter().for_each(|peer| {
+            dialable_peers.into_iter().for_each(|address| {
                 let to_peer_manager = self.to_peer_manager.clone();
                 tokio::spawn(async move {
-                    match TcpStream::connect(peer)
+                    match TcpStream::connect(address)
                         .await
-                        .map_err(|e| NetworkError::Dial(peer, e))
+                        .map_err(|e| NetworkError::Dial(address, e))
                     {
                         Ok(stream) => {
-                            info!("Successfully dialed {peer}");
+                            info!("Successfully dialed {address}");
                             to_peer_manager
-                                .send(PeerManagerMessage::NewPeer { peer, stream })
+                                .send(PeerManagerMessage::NewPeer { address, stream })
                                 .await
                                 .unwrap();
                         }
                         Err(e) => {
-                            debug!(error=?e);
+                            debug!("Failed to dial {address}: {e}");
                         }
                     }
                 });
             });
 
-            sleep(self.tick).await;
+            sleep(self.interval).await;
         }
     }
 }

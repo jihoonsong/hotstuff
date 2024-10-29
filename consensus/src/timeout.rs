@@ -2,9 +2,8 @@ use std::{
     future::Future,
     pin::Pin,
     task::{Context, Poll},
-    time::Duration,
 };
-use tokio::time::{sleep, Instant, Sleep};
+use tokio::time::{sleep, Duration, Instant, Sleep};
 
 pub struct Timeout {
     timer: Pin<Box<Sleep>>,

@@ -11,7 +11,7 @@ impl Aggregator {
         Self(PublicKeySet::from_bytes(raw_bytes).unwrap())
     }
 
-    pub fn pubkey(&self) -> PublicKey {
+    pub fn public_key(&self) -> PublicKey {
         PublicKey::new(self.0.public_key().to_bytes())
     }
 
@@ -26,11 +26,9 @@ impl Aggregator {
                     acc.insert(*id, signature.0.clone());
                     acc
                 });
-        let result = self.0.combine_signatures(signatures);
-        if let Err(err) = result {
-            return Err(err);
-        }
-        Ok(Signature::new(result.unwrap().to_bytes()))
+        Ok(Signature::new(
+            self.0.combine_signatures(signatures)?.to_bytes(),
+        ))
     }
 
     pub fn to_bytes(&self) -> Vec<u8> {

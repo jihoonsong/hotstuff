@@ -1,18 +1,29 @@
-use hotstuff_consensus::{HotStuff, RoundRobinLeaderElector};
+use hotstuff_consensus::{HotStuff, HotStuffConfig, RoundRobinLeaderElector};
+use hotstuff_crypto::PublicKey;
 use hotstuff_mempool::{Mempool, MempoolTransaction, Validator};
-use hotstuff_p2p::P2PNetwork;
-use hotstuff_rpc::RpcServer;
+use hotstuff_p2p::{NetworkConfig, P2PNetwork};
+use hotstuff_rpc::{RpcConfig, RpcServer};
 use tracing::info;
 
 use crate::NodeConfig;
 
 pub struct Node {
-    configs: NodeConfig,
+    identity: PublicKey,
+    committee: Vec<PublicKey>,
+    hotstuff_config: HotStuffConfig,
+    rpc_config: RpcConfig,
+    network_config: NetworkConfig,
 }
 
 impl Node {
     pub fn new(config: NodeConfig) -> Self {
-        Self { configs: config }
+        Self {
+            identity: config.identity(),
+            committee: config.committee(),
+            hotstuff_config: config.hotstuff,
+            rpc_config: config.rpc,
+            network_config: config.network,
+        }
     }
 
     pub async fn run(self) {
@@ -21,26 +32,30 @@ impl Node {
         let mempool = Mempool::<MempoolTransaction, Validator<MempoolTransaction>>::new(validator);
 
         // Create a leader elector.
-        let leader_elector = RoundRobinLeaderElector::new(self.configs.committee);
+        let leader_elector = RoundRobinLeaderElector::new(self.committee);
 
         // Create a HotStuff consensus protocol.
         let mut hotstuff = HotStuff::new(
-            self.configs.hotstuff,
+            self.hotstuff_config,
             mempool,
             leader_elector,
-            self.configs.identity,
+            self.identity.clone(),
         );
         let hotstuff_handler = hotstuff.handler();
         let hotstuff_mempool = hotstuff.mempool();
 
         // Create a RPC server.
-        let rpc_server = RpcServer::new(self.configs.rpc, hotstuff_mempool)
+        let rpc_server = RpcServer::new(self.rpc_config, hotstuff_mempool)
             .build()
             .await
             .expect("Failed to build RPC server");
 
         // Create a P2P network.
-        let p2p_network = P2PNetwork::new(self.configs.network, hotstuff_handler.clone());
+        let p2p_network = P2PNetwork::new(
+            self.network_config,
+            hotstuff_handler.clone(),
+            self.identity.clone(),
+        );
         let p2p_network_mailbox = p2p_network.mailbox();
 
         // Configure the HotStuff consensus protocol.

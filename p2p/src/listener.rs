@@ -29,15 +29,15 @@ impl Listener {
                 .await
                 .map_err(NetworkError::AcceptConnection)
             {
-                Ok((stream, peer)) => {
-                    info!("Successfully accepted incoming connection from {peer}");
+                Ok((stream, address)) => {
+                    info!("Successfully accepted incoming connection from {address}");
                     self.to_peer_manager
-                        .send(PeerManagerMessage::NewPeer { peer, stream })
+                        .send(PeerManagerMessage::NewPeer { address, stream })
                         .await
                         .unwrap();
                 }
                 Err(e) => {
-                    debug!(error=?e);
+                    debug!("Failed to accept incoming connection: {e}");
                     continue;
                 }
             }

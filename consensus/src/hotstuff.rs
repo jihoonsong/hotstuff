@@ -1,7 +1,11 @@
+use hotstuff_crypto::PublicKey;
 use hotstuff_mempool::{Transaction, TransactionPoolExt};
 use hotstuff_p2p::{Encodable, NetworkAction};
-use std::{net::SocketAddr, sync::Arc, thread, time::Duration};
-use tokio::sync::{mpsc, oneshot};
+use std::sync::Arc;
+use tokio::{
+    sync::{mpsc, oneshot},
+    time::{sleep, Duration},
+};
 use tracing::info;
 
 use crate::{
@@ -20,7 +24,7 @@ where
     to_network: Option<mpsc::Sender<NetworkAction>>,
     timeout: Timeout,
     leader_elector: L,
-    identity: SocketAddr,
+    identity: PublicKey,
     round: Round,
 }
 
@@ -30,12 +34,7 @@ where
     P: TransactionPoolExt<Transaction = T>,
     L: LeaderElector,
 {
-    pub fn new(
-        config: HotStuffConfig,
-        mempool: P,
-        leader_elector: L,
-        identity: SocketAddr,
-    ) -> Self {
+    pub fn new(config: HotStuffConfig, mempool: P, leader_elector: L, identity: PublicKey) -> Self {
         let (to_hotstuff, from_hotstuff) = mpsc::channel(config.mailbox_size);
         let handler = HotStuffMessageHandler { to_hotstuff };
         let timeout = Timeout::new(config.timeout);
@@ -100,18 +99,18 @@ where
                 .unwrap();
 
             if response.await.unwrap() {
-                info!("Network is ready");
+                info!("{}: Network is ready", self.identity);
                 break;
             }
 
-            info!("Network is not ready yet");
-            thread::sleep(Duration::from_secs(1));
+            info!("{}: Network is not ready yet", self.identity);
+            sleep(Duration::from_secs(1)).await;
         }
     }
 
     async fn propose(&mut self) {
         let block = Block::new(
-            self.identity,
+            self.identity.clone(),
             self.round,
             self.mempool.pending_transactions().await,
         );
@@ -127,10 +126,8 @@ where
     }
 
     async fn handle_proposal(&self, block: Block<T>) {
-        info!("Received a proposal {:?}", block);
+        info!("{}: Received a proposal {:?}", self.identity, block);
     }
 
-    async fn handle_timeout(&self) {
-        info!("timeout!");
-    }
+    async fn handle_timeout(&self) {}
 }

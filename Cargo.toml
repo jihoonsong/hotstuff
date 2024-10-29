@@ -2,8 +2,8 @@
 members = [
     "app",
     "consensus",
-    "mempool",
     "crypto",
+    "mempool",
     "node",
     "p2p",
     "rpc",
@@ -12,11 +12,11 @@ resolver = "2"
 
 [workspace.dependencies]
 hotstuff-consensus = { version = "0.1.0", path = "consensus" }
+hotstuff-crypto = { version = "0.1.0", path = "crypto" }
 hotstuff-mempool = { version = "0.1.0", path = "mempool" }
 hotstuff-node = { version = "0.1.0", path = "node" }
 hotstuff-p2p = { version = "0.1.0", path = "p2p" }
 hotstuff-rpc = { version = "0.1.0", path = "rpc" }
-hotstuff-crypto = { version = "0.1.0", path = "crypto" }
 
 [workspace.package]
 version = "0.1.0"

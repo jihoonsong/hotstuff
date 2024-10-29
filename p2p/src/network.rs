@@ -1,3 +1,4 @@
+use hotstuff_crypto::PublicKey;
 use std::marker::PhantomData;
 use tokio::sync::mpsc;
 use tracing::info;
@@ -17,6 +18,7 @@ where
     from_p2p_network: mpsc::Receiver<NetworkAction>,
     peer_manager: Option<PeerManager<M, H>>,
     peer_message_handler: H,
+    identity: PublicKey,
     _marker: PhantomData<M>,
 }
 
@@ -25,7 +27,7 @@ where
     M: NetworkMessage,
     H: NetworkMessageHandler<M>,
 {
-    pub fn new(config: NetworkConfig, peer_message_handler: H) -> Self {
+    pub fn new(config: NetworkConfig, peer_message_handler: H, identity: PublicKey) -> Self {
         let (to_p2p_network, from_p2p_network) = mpsc::channel(config.mailbox_size);
 
         Self {
@@ -34,6 +36,7 @@ where
             from_p2p_network,
             peer_manager: None,
             peer_message_handler,
+            identity,
             _marker: PhantomData,
         }
     }
@@ -44,6 +47,7 @@ where
             self.peer_manager = Some(PeerManager::new(
                 self.configs.peer_manager,
                 self.peer_message_handler,
+                self.identity,
             ));
         }
         let peer_manager = self.peer_manager.unwrap();

@@ -1,24 +1,23 @@
-use std::net::SocketAddr;
+use hotstuff_crypto::PublicKey;
 
 use crate::Round;
 
 pub trait LeaderElector {
-    // TODO: Use cryptographic public key instead of SocketAddr as an identifier.
-    fn leader(&self, round: Round) -> SocketAddr;
+    fn leader(&self, round: Round) -> PublicKey;
 }
 
 pub struct RoundRobinLeaderElector {
-    committee: Vec<SocketAddr>,
+    committee: Vec<PublicKey>,
 }
 
 impl RoundRobinLeaderElector {
-    pub fn new(committee: Vec<SocketAddr>) -> Self {
+    pub fn new(committee: Vec<PublicKey>) -> Self {
         Self { committee }
     }
 }
 
 impl LeaderElector for RoundRobinLeaderElector {
-    fn leader(&self, round: Round) -> SocketAddr {
-        self.committee[round as usize % self.committee.len()]
+    fn leader(&self, round: Round) -> PublicKey {
+        self.committee[round as usize % self.committee.len()].clone()
     }
 }
