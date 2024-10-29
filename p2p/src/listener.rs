@@ -37,7 +37,7 @@ impl Listener {
                         .unwrap();
                 }
                 Err(e) => {
-                    debug!(error=?e);
+                    debug!("Failed to accept incoming connection: {e}");
                     continue;
                 }
             }

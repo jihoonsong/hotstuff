@@ -117,7 +117,7 @@ where
         {
             Ok(message) => message,
             Err(e) => {
-                debug!(error=?e);
+                debug!("Failed to exchange handshake: {e}");
                 return;
             }
         };
