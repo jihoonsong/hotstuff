@@ -1,8 +1,11 @@
 use hotstuff_crypto::PublicKey;
 use hotstuff_mempool::{Transaction, TransactionPoolExt};
 use hotstuff_p2p::{Encodable, NetworkAction};
-use std::{sync::Arc, thread, time::Duration};
-use tokio::sync::{mpsc, oneshot};
+use std::sync::Arc;
+use tokio::{
+    sync::{mpsc, oneshot},
+    time::{sleep, Duration},
+};
 use tracing::info;
 
 use crate::{
@@ -101,7 +104,7 @@ where
             }
 
             info!("{}: Network is not ready yet", self.identity);
-            thread::sleep(Duration::from_secs(1));
+            sleep(Duration::from_secs(1)).await;
         }
     }
 
