@@ -154,15 +154,32 @@ where
     }
 
     async fn send(&mut self, recipient: PublicKey, message: Bytes) {
+        // Loopback the message if the recipient is myself.
+        if recipient == self.identity {
+            self.peer_message_handler
+                .handle_message(M::decode(message))
+                .await
+                .unwrap();
+            return;
+        }
+
+        // Send the message to the recipient.
         let send_futures = self
             .connected_peers
             .iter_mut()
-            .filter(|(peer, _)| **peer == recipient)
+            .filter(|&(peer, _)| *peer == recipient)
             .map(|(_, writer)| writer.send(message.clone()));
         join_all(send_futures).await;
     }
 
     async fn broadcast(&mut self, message: Bytes) {
+        // Send the message to myself also.
+        self.peer_message_handler
+            .handle_message(M::decode(message.clone()))
+            .await
+            .unwrap();
+
+        // Broadcast the message to all connected peers.
         let broadcast_futures = self
             .connected_peers
             .iter_mut()
