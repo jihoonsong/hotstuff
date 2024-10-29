@@ -497,6 +497,7 @@ dependencies = [
  "async-trait",
  "bincode",
  "futures-util",
+ "hotstuff-crypto",
  "hotstuff-mempool",
  "hotstuff-p2p",
  "serde",
@@ -509,9 +510,11 @@ dependencies = [
 name = "hotstuff-crypto"
 version = "0.1.0"
 dependencies = [
+ "base64",
  "blsttc",
  "hex",
  "rand",
+ "serde",
 ]
 
 [[package]]
@@ -527,7 +530,9 @@ dependencies = [
 name = "hotstuff-node"
 version = "0.1.0"
 dependencies = [
+ "base64",
  "hotstuff-consensus",
+ "hotstuff-crypto",
  "hotstuff-mempool",
  "hotstuff-p2p",
  "hotstuff-rpc",

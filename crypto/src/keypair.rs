@@ -1,14 +1,16 @@
+use base64::prelude::{Engine, BASE64_STANDARD};
 use blsttc::{PublicKeyShare, SecretKeyShare, PK_SIZE, SIG_SIZE, SK_SIZE};
+use serde::{Deserialize, Serialize};
 use std::fmt;
 
 use crate::signature::Signature;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct PublicKey(PublicKeyShare);
 
 impl fmt::Display for PublicKey {
     fn fmt(&self, f: &mut fmt::Formatter) -> Result<(), fmt::Error> {
-        write!(f, "{}", hex::encode(self.to_bytes()))
+        write!(f, "{}", BASE64_STANDARD.encode(self.to_bytes()))
     }
 }
 

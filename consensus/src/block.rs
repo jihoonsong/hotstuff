@@ -1,12 +1,12 @@
+use hotstuff_crypto::PublicKey;
 use hotstuff_mempool::Transaction;
 use serde::{Deserialize, Serialize};
-use std::net::SocketAddr;
 
 use crate::Round;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Block<T> {
-    author: SocketAddr, // TODO: Replace with cryptographic public key.
+    author: PublicKey,
     round: Round,
     payload: Vec<T>,
 }
@@ -15,7 +15,7 @@ impl<T> Block<T>
 where
     T: Transaction,
 {
-    pub fn new(author: SocketAddr, round: Round, payload: Vec<T>) -> Self {
+    pub fn new(author: PublicKey, round: Round, payload: Vec<T>) -> Self {
         Self {
             author,
             round,
