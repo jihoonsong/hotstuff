@@ -1,8 +1,7 @@
-use std::time::Duration;
 use tokio::{
     net::TcpStream,
     sync::{mpsc, oneshot},
-    time::sleep,
+    time::{sleep, Duration},
 };
 use tracing::{debug, info};
 
@@ -30,22 +29,22 @@ impl Dialer {
                 .unwrap();
             let dialable_peers = response.await.unwrap();
 
-            dialable_peers.into_iter().for_each(|peer| {
+            dialable_peers.into_iter().for_each(|address| {
                 let to_peer_manager = self.to_peer_manager.clone();
                 tokio::spawn(async move {
-                    match TcpStream::connect(peer)
+                    match TcpStream::connect(address)
                         .await
-                        .map_err(|e| NetworkError::Dial(peer, e))
+                        .map_err(|e| NetworkError::Dial(address, e))
                     {
                         Ok(stream) => {
-                            info!("Successfully dialed {peer}");
+                            info!("Successfully dialed {address}");
                             to_peer_manager
-                                .send(PeerManagerMessage::NewPeer { peer, stream })
+                                .send(PeerManagerMessage::NewPeer { address, stream })
                                 .await
                                 .unwrap();
                         }
                         Err(e) => {
-                            debug!(error=?e);
+                            debug!("Failed to dial {address}: {e}");
                         }
                     }
                 });

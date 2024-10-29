@@ -43,8 +43,11 @@ pub(crate) enum PeerManagerMessage {
         reply: oneshot::Sender<Vec<SocketAddr>>,
     },
     NewPeer {
-        peer: SocketAddr,
+        address: SocketAddr,
         stream: TcpStream,
+    },
+    DisconnectedPeer {
+        identity: PublicKey,
     },
     NetworkAction(NetworkAction),
 }

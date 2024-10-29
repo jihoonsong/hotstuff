@@ -1,9 +1,10 @@
 use futures::StreamExt;
 use hotstuff_crypto::PublicKey;
 use std::marker::PhantomData;
+use tokio::sync::mpsc;
 use tracing::debug;
 
-use crate::{NetworkError, NetworkMessage, NetworkMessageHandler, Reader};
+use crate::{NetworkError, NetworkMessage, NetworkMessageHandler, PeerManagerMessage, Reader};
 
 pub struct Peer<M, H>
 where
@@ -13,6 +14,7 @@ where
     identity: PublicKey,
     reader: Reader,
     peer_message_handler: H,
+    to_peer_manager: mpsc::Sender<PeerManagerMessage>,
     _marker: PhantomData<M>,
 }
 
@@ -21,11 +23,17 @@ where
     M: NetworkMessage,
     H: NetworkMessageHandler<M>,
 {
-    pub fn new(identity: PublicKey, reader: Reader, peer_message_handler: H) -> Self {
+    pub fn new(
+        identity: PublicKey,
+        reader: Reader,
+        peer_message_handler: H,
+        to_peer_manager: mpsc::Sender<PeerManagerMessage>,
+    ) -> Self {
         Self {
             identity,
             reader,
             peer_message_handler,
+            to_peer_manager,
             _marker: PhantomData,
         }
     }
@@ -40,7 +48,13 @@ where
                         .unwrap();
                 }
                 Err(e) => {
-                    debug!(error=?e);
+                    debug!("Disconnected from peer {}: {}", self.identity, e);
+                    self.to_peer_manager
+                        .send(PeerManagerMessage::DisconnectedPeer {
+                            identity: self.identity,
+                        })
+                        .await
+                        .unwrap();
                     break;
                 }
             }

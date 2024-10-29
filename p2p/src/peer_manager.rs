@@ -63,8 +63,11 @@ where
                 PeerManagerMessage::DialablePeers { reply } => {
                     reply.send(self.dialable_peers()).unwrap();
                 }
-                PeerManagerMessage::NewPeer { peer, stream } => {
-                    self.new_peer(peer, stream).await;
+                PeerManagerMessage::NewPeer { address, stream } => {
+                    self.new_peer(address, stream).await;
+                }
+                PeerManagerMessage::DisconnectedPeer { identity } => {
+                    self.disconnected_peer(identity).await;
                 }
                 PeerManagerMessage::NetworkAction(NetworkAction::IsReady { reply }) => {
                     self.is_ready(reply).await;
@@ -84,14 +87,19 @@ where
     }
 
     fn dialable_peers(&self) -> Vec<SocketAddr> {
-        self.candidate_peers.values().cloned().collect()
+        self.candidate_peers
+            .iter()
+            .filter(|&(peer, _)| (!self.connected_peers.contains_key(peer)))
+            .map(|(_, &address)| address)
+            .take(self.max_peers as usize - self.connected_peers.len())
+            .collect()
     }
 
-    async fn new_peer(&mut self, peer: SocketAddr, mut stream: TcpStream) {
+    async fn new_peer(&mut self, address: SocketAddr, mut stream: TcpStream) {
         // If we have reached the maximum number of peers, just close the new connection.
         if self.connected_peers.len() >= self.max_peers as usize {
             let _ = stream.shutdown().await;
-            info!("Shutdown new connection with {peer}: max peers reached");
+            info!("Shutdown new connection with {address}: max peers reached");
             return;
         }
 
@@ -117,24 +125,26 @@ where
         // If the peer is already connected, just close the connection.
         if self.connected_peers.contains_key(&peer_identity) {
             let _ = writer.close().await;
-            info!("Shutdown new connection with {peer}: peer already connected");
+            info!("Shutdown new connection with {address}: peer already connected");
             return;
         }
         info!("{}: New connected peer: {}", self.identity, peer_identity);
-
-        // Remove the peer from the candidate peers.
-        self.candidate_peers.remove(&peer_identity);
 
         // Add the peer to the connected peers.
         self.connected_peers.insert(peer_identity.clone(), writer);
 
         // Spawn peer listening to its messages. Received messages will be redirected to Consensus.
         let peer_message_handler = self.peer_message_handler.clone();
+        let to_peer_manager = self.to_peer_manager.clone();
         tokio::spawn(async move {
-            Peer::new(peer_identity, reader, peer_message_handler)
+            Peer::new(peer_identity, reader, peer_message_handler, to_peer_manager)
                 .run()
                 .await;
         });
+    }
+
+    async fn disconnected_peer(&mut self, identity: PublicKey) {
+        self.connected_peers.remove(&identity);
     }
 
     async fn is_ready(&mut self, reply: oneshot::Sender<bool>) {
