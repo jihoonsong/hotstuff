@@ -15,7 +15,7 @@ pub struct Dialer {
 impl Dialer {
     pub fn new(config: DialerConfig, to_peer_manager: mpsc::Sender<PeerManagerMessage>) -> Self {
         Self {
-            interval: Duration::from_secs(config.interval),
+            interval: Duration::from_millis(config.interval),
             to_peer_manager,
         }
     }
