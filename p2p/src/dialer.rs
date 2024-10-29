@@ -9,14 +9,14 @@ use tracing::{debug, info};
 use crate::{DialerConfig, NetworkError, PeerManagerMessage};
 
 pub struct Dialer {
-    tick: Duration,
+    interval: Duration,
     to_peer_manager: mpsc::Sender<PeerManagerMessage>,
 }
 
 impl Dialer {
     pub fn new(config: DialerConfig, to_peer_manager: mpsc::Sender<PeerManagerMessage>) -> Self {
         Self {
-            tick: Duration::from_secs(config.tick),
+            interval: Duration::from_secs(config.interval),
             to_peer_manager,
         }
     }
@@ -51,7 +51,7 @@ impl Dialer {
                 });
             });
 
-            sleep(self.tick).await;
+            sleep(self.interval).await;
         }
     }
 }

@@ -36,7 +36,7 @@ impl PeerManagerConfig {
 
 #[derive(Debug, Deserialize)]
 pub struct DialerConfig {
-    pub tick: u64,
+    pub interval: u64,
 }
 
 #[derive(Debug, Deserialize)]
