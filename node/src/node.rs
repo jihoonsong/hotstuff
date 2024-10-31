@@ -1,5 +1,5 @@
 use hotstuff_consensus::{Committee, HotStuff, HotStuffConfig, RoundRobinLeaderElector};
-use hotstuff_crypto::{PublicKey, SecretKey, Signer, ValidatorIndex};
+use hotstuff_crypto::{Aggregator, PublicKey, SecretKey, Signer, ValidatorIndex};
 use hotstuff_mempool::{Mempool, MempoolTransaction, Validator};
 use hotstuff_p2p::{NetworkConfig, P2PNetwork};
 use hotstuff_rpc::{RpcConfig, RpcServer};
@@ -12,6 +12,7 @@ pub struct Node {
     public_key: PublicKey,
     secret_key: SecretKey,
     committee: HashMap<PublicKey, ValidatorIndex>,
+    aggregator: Vec<u8>,
     hotstuff_config: HotStuffConfig,
     rpc_config: RpcConfig,
     network_config: NetworkConfig,
@@ -23,6 +24,7 @@ impl Node {
             public_key: config.public_key(),
             secret_key: config.secret_key(),
             committee: config.committee(),
+            aggregator: config.aggregator(),
             hotstuff_config: config.hotstuff,
             rpc_config: config.rpc,
             network_config: config.network,
@@ -30,7 +32,7 @@ impl Node {
     }
 
     pub async fn run(self) {
-        // Create a HotStuff mempool.
+        // Create the HotStuff mempool.
         let validator = Validator::<MempoolTransaction>::default();
         let mempool = Mempool::<MempoolTransaction, Validator<MempoolTransaction>>::new(validator);
 
@@ -40,27 +42,31 @@ impl Node {
             RoundRobinLeaderElector::new(self.committee.keys().cloned().collect()),
         );
 
-        // Create a signer.
+        // Create the signer.
         let signer = Signer::new(self.secret_key);
 
-        // Create a HotStuff consensus protocol.
+        // Create the signature aggregator.
+        let aggregator = Aggregator::new(self.aggregator);
+
+        // Create the HotStuff consensus protocol.
         let mut hotstuff = HotStuff::new(
             self.hotstuff_config,
             mempool,
             committee,
             self.public_key.clone(),
             signer,
+            aggregator,
         );
         let hotstuff_handler = hotstuff.handler();
         let hotstuff_mempool = hotstuff.mempool();
 
-        // Create a RPC server.
+        // Create the RPC server.
         let rpc_server = RpcServer::new(self.rpc_config, hotstuff_mempool)
             .build()
             .await
             .expect("Failed to build RPC server");
 
-        // Create a P2P network.
+        // Create the P2P network.
         let p2p_network = P2PNetwork::new(
             self.network_config,
             hotstuff_handler.clone(),

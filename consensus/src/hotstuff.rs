@@ -1,4 +1,4 @@
-use hotstuff_crypto::{PublicKey, Signer};
+use hotstuff_crypto::{Aggregator, PublicKey, Signer};
 use hotstuff_mempool::{Transaction, TransactionPoolExt};
 use hotstuff_p2p::{Encodable, NetworkAction};
 use std::sync::Arc;
@@ -28,6 +28,7 @@ where
     committee: Committee<L>,
     identity: PublicKey,
     signer: Signer,
+    aggregator: Aggregator,
 }
 
 impl<T, P, L> HotStuff<T, P, L>
@@ -42,6 +43,7 @@ where
         committee: Committee<L>,
         identity: PublicKey,
         signer: Signer,
+        aggregator: Aggregator,
     ) -> Self {
         let (to_hotstuff, from_hotstuff) = mpsc::channel(config.mailbox_size);
         let handler = HotStuffMessageHandler { to_hotstuff };
@@ -58,6 +60,7 @@ where
             committee,
             identity,
             signer,
+            aggregator,
         }
     }
 

@@ -11,6 +11,7 @@ pub struct NodeConfig {
     pub public_key: String,
     pub secret_key: String,
     pub committee: Vec<String>,
+    pub aggregator: String,
     pub hotstuff: HotStuffConfig,
     pub rpc: RpcConfig,
     pub network: NetworkConfig,
@@ -44,5 +45,9 @@ impl NodeConfig {
             .enumerate()
             .map(|(i, pk)| (pk, i))
             .collect()
+    }
+
+    pub(crate) fn aggregator(&self) -> Vec<u8> {
+        BASE64_STANDARD.decode(&self.aggregator).unwrap()
     }
 }

@@ -8,6 +8,7 @@ committee = ["i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX",
              "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18",
              "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy",
              "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy"]
+aggregator = "g5n3878x7Qsty+ovOylIg5+nlapAz1iPkCwraO+KoPPmGtE3ntVFCfIeBnpQnl29hLf/ONxubzdSsKCW4QAEFYPVlqHr0CpampNGTnvtGSDuYNF4ke7pxoCgKggZOm5irlkBsJJ8pr/q0Qq5yCh77ox3Sg4pJhoitGis5x8XLXUX/+lCujovWoEJk/yoaqjn"
 hotstuff.mailbox_size = 256
 hotstuff.timeout = 5000
 rpc.address = "127.0.0.1:50011"
@@ -27,6 +28,7 @@ committee = ["i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX",
              "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18",
              "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy",
              "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy"]
+aggregator = "g5n3878x7Qsty+ovOylIg5+nlapAz1iPkCwraO+KoPPmGtE3ntVFCfIeBnpQnl29hLf/ONxubzdSsKCW4QAEFYPVlqHr0CpampNGTnvtGSDuYNF4ke7pxoCgKggZOm5irlkBsJJ8pr/q0Qq5yCh77ox3Sg4pJhoitGis5x8XLXUX/+lCujovWoEJk/yoaqjn"
 hotstuff.mailbox_size = 256
 hotstuff.timeout = 5000
 rpc.address = "127.0.0.1:50012"
@@ -46,6 +48,7 @@ committee = ["i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX",
              "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18",
              "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy",
              "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy"]
+aggregator = "g5n3878x7Qsty+ovOylIg5+nlapAz1iPkCwraO+KoPPmGtE3ntVFCfIeBnpQnl29hLf/ONxubzdSsKCW4QAEFYPVlqHr0CpampNGTnvtGSDuYNF4ke7pxoCgKggZOm5irlkBsJJ8pr/q0Qq5yCh77ox3Sg4pJhoitGis5x8XLXUX/+lCujovWoEJk/yoaqjn"
 hotstuff.mailbox_size = 256
 hotstuff.timeout = 5000
 rpc.address = "127.0.0.1:50013"
@@ -65,6 +68,7 @@ committee = ["i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX",
              "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18",
              "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy",
              "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy"]
+aggregator = "g5n3878x7Qsty+ovOylIg5+nlapAz1iPkCwraO+KoPPmGtE3ntVFCfIeBnpQnl29hLf/ONxubzdSsKCW4QAEFYPVlqHr0CpampNGTnvtGSDuYNF4ke7pxoCgKggZOm5irlkBsJJ8pr/q0Qq5yCh77ox3Sg4pJhoitGis5x8XLXUX/+lCujovWoEJk/yoaqjn"
 hotstuff.mailbox_size = 256
 hotstuff.timeout = 5000
 rpc.address = "127.0.0.1:50014"
