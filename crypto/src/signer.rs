@@ -1,5 +1,6 @@
 use crate::{SecretKey, Signature};
 
+#[derive(Clone)]
 pub struct Signer(SecretKey);
 
 impl Signer {

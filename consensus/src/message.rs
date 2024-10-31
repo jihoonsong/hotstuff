@@ -6,11 +6,11 @@ use tokio::sync::mpsc::{self, error::SendError};
 use tokio_util::bytes::Bytes;
 use tracing::info;
 
-use crate::Block;
+use crate::SignedBlock;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum HotStuffMessage<T> {
-    Proposal(Block<T>),
+    Proposal(SignedBlock<T>),
 }
 
 impl<T> NetworkMessage for HotStuffMessage<T> where T: Transaction {}

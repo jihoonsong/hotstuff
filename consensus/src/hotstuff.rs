@@ -10,8 +10,8 @@ use tokio::{
 use tracing::info;
 
 use crate::{
-    Block, Committee, HotStuffConfig, HotStuffMessage, HotStuffMessageHandler, LeaderElector,
-    Timeout,
+    Committee, HotStuffConfig, HotStuffMessage, HotStuffMessageHandler, LeaderElector, Proposer,
+    SignedBlock, Timeout,
 };
 
 pub struct HotStuff<T, P, L>
@@ -28,6 +28,7 @@ where
     round: Round,
     committee: Committee<L>,
     identity: PublicKey,
+    proposer: Proposer<T, P>,
     signer: Signer,
     aggregator: Aggregator,
 }
@@ -48,18 +49,21 @@ where
     ) -> Self {
         let (to_hotstuff, from_hotstuff) = mpsc::channel(config.mailbox_size);
         let handler = HotStuffMessageHandler { to_hotstuff };
+        let mempool = Arc::new(mempool);
         let timeout = Timeout::new(config.timeout);
         let round = Round::default();
+        let proposer = Proposer::new(identity.clone(), mempool.clone(), signer.clone());
 
         Self {
             from_hotstuff,
             handler,
-            mempool: Arc::new(mempool),
+            mempool,
             to_network: None,
             timeout,
             round,
             committee,
             identity,
+            proposer,
             signer,
             aggregator,
         }
@@ -122,23 +126,19 @@ where
     }
 
     async fn propose(&mut self) {
-        let block = Block::new(
-            self.identity.clone(),
-            self.round,
-            self.mempool.pending_transactions().await,
-        );
+        let signed_block = self.proposer.propose(self.round).await;
 
         self.to_network
             .as_mut()
             .unwrap()
             .send(NetworkAction::Broadcast {
-                message: HotStuffMessage::Proposal(block).encode(),
+                message: HotStuffMessage::Proposal(signed_block).encode(),
             })
             .await
             .unwrap();
     }
 
-    async fn handle_proposal(&self, block: Block<T>) {
+    async fn handle_proposal(&self, block: SignedBlock<T>) {
         info!("{}: Received a proposal {:?}", self.identity, block);
     }
 
