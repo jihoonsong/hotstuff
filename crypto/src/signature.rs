@@ -1,20 +1,17 @@
 use blsttc::{SignatureShare, SIG_SIZE};
+use serde::{Deserialize, Serialize};
 
-use crate::keypair::PublicKey;
+use crate::public_key::PublicKey;
 
-#[derive(Debug, Clone)]
-pub struct Signature(pub SignatureShare);
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct Signature(pub(crate) SignatureShare);
 
 impl Signature {
-    pub fn new(raw_bytes: [u8; SIG_SIZE]) -> Self {
-        Self(SignatureShare::from_bytes(raw_bytes).unwrap())
-    }
-
-    pub fn to_bytes(&self) -> [u8; SIG_SIZE] {
-        self.0.to_bytes()
+    pub fn new(bytes: [u8; SIG_SIZE]) -> Self {
+        Self(SignatureShare::from_bytes(bytes).unwrap())
     }
 
     pub fn verify<M: AsRef<[u8]>>(&self, author: &PublicKey, msg: M) -> bool {
-        author.verify(self, msg)
+        author.0.verify(&self.0, msg)
     }
 }

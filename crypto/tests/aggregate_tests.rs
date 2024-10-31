@@ -14,7 +14,7 @@ fn test_aggregate_signatures() {
         signatures.insert(i, signature);
     }
 
-    let result = aggregator.aggregate_signatures(signatures);
+    let result = aggregator.aggregate(signatures);
     assert!(result.is_ok());
     let aggregated_signature = result.unwrap();
     assert!(aggregated_signature.verify(&aggregator.public_key(), message));
@@ -31,7 +31,7 @@ fn test_aggregate_signatures_insufficient() {
         signatures.insert(i, signature);
     }
 
-    let result = aggregator.aggregate_signatures(signatures);
+    let result = aggregator.aggregate(signatures);
     assert!(result.is_err());
     assert!(result
         .unwrap_err()
@@ -51,8 +51,8 @@ fn test_aggregate_signatures_wrong_id() {
         signatures.insert((i + 1) % 3, signature);
     }
 
-    let result = aggregator.aggregate_signatures(signatures);
+    let result = aggregator.aggregate(signatures);
     assert!(result.is_ok());
     let aggregated_signature = result.unwrap();
-    assert!(aggregated_signature.verify(&aggregator.public_key(), message));
+    assert!(!aggregated_signature.verify(&aggregator.public_key(), message));
 }

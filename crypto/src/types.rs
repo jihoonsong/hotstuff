@@ -1,0 +1,1 @@
+pub type ValidatorIndex = usize;

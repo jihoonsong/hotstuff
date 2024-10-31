@@ -1,5 +1,18 @@
 use blsttc::SecretKeySet;
-use hotstuff_crypto::{Aggregator, KeyPair, PublicKey, SecretKey};
+use hotstuff_crypto::{Aggregator, PublicKey, SecretKey, Signature};
+
+// KeyPair is held by each node.
+pub struct KeyPair {
+    #[allow(dead_code)]
+    pub pk: PublicKey,
+    pub sk: SecretKey,
+}
+
+impl KeyPair {
+    pub fn sign<M: AsRef<[u8]>>(&self, msg: M) -> Signature {
+        self.sk.sign(msg)
+    }
+}
 
 pub fn generate_random_keypairs(threshold: usize, n: usize) -> (Aggregator, Vec<KeyPair>) {
     let mut rng = rand::thread_rng();
