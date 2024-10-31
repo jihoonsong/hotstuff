@@ -1,6 +1,7 @@
 use hotstuff_crypto::{Aggregator, PublicKey, Signer};
 use hotstuff_mempool::{Transaction, TransactionPoolExt};
-use hotstuff_p2p::{Encodable, NetworkAction};
+use hotstuff_p2p::NetworkAction;
+use hotstuff_primitives::{Encodable, Round};
 use std::sync::Arc;
 use tokio::{
     sync::{mpsc, oneshot},
@@ -10,7 +11,7 @@ use tracing::info;
 
 use crate::{
     Block, Committee, HotStuffConfig, HotStuffMessage, HotStuffMessageHandler, LeaderElector,
-    Round, Timeout,
+    Timeout,
 };
 
 pub struct HotStuff<T, P, L>

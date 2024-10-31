@@ -1,0 +1,9 @@
+[package]
+name = "hotstuff-primitives"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+
+[dependencies]
+tokio-util = { version = "0.7", features = ["codec"] }

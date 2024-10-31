@@ -500,6 +500,7 @@ dependencies = [
  "hotstuff-crypto",
  "hotstuff-mempool",
  "hotstuff-p2p",
+ "hotstuff-primitives",
  "serde",
  "tokio",
  "tokio-util",
@@ -513,6 +514,7 @@ dependencies = [
  "base64",
  "blsttc",
  "hex",
+ "hotstuff-primitives",
  "rand",
  "serde",
 ]
@@ -535,6 +537,7 @@ dependencies = [
  "hotstuff-crypto",
  "hotstuff-mempool",
  "hotstuff-p2p",
+ "hotstuff-primitives",
  "hotstuff-rpc",
  "jsonrpsee",
  "serde",
@@ -551,11 +554,19 @@ dependencies = [
  "bincode",
  "futures",
  "hotstuff-crypto",
+ "hotstuff-primitives",
  "serde",
  "thiserror",
  "tokio",
  "tokio-util",
  "tracing",
+]
+
+[[package]]
+name = "hotstuff-primitives"
+version = "0.1.0"
+dependencies = [
+ "tokio-util",
 ]
 
 [[package]]

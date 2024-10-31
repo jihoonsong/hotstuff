@@ -1,10 +1,11 @@
 use futures::{SinkExt, StreamExt};
 use hotstuff_crypto::PublicKey;
+use hotstuff_primitives::{Decodable, Encodable};
 use serde::{Deserialize, Serialize};
 use std::time::Duration;
 use tokio_util::bytes::Bytes;
 
-use crate::{Decodable, Encodable, NetworkError, Reader, Writer};
+use crate::{NetworkError, Reader, Writer};
 
 #[derive(Clone, Serialize, Deserialize)]
 pub struct Handshake {

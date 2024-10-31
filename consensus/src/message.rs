@@ -1,5 +1,6 @@
 use hotstuff_mempool::Transaction;
-use hotstuff_p2p::{Decodable, Encodable, NetworkMessage, NetworkMessageHandler};
+use hotstuff_p2p::{NetworkMessage, NetworkMessageHandler};
+use hotstuff_primitives::{Decodable, Encodable};
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::{self, error::SendError};
 use tokio_util::bytes::Bytes;

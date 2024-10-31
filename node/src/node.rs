@@ -1,7 +1,8 @@
 use hotstuff_consensus::{Committee, HotStuff, HotStuffConfig, RoundRobinLeaderElector};
-use hotstuff_crypto::{Aggregator, PublicKey, SecretKey, Signer, ValidatorIndex};
+use hotstuff_crypto::{Aggregator, PublicKey, SecretKey, Signer};
 use hotstuff_mempool::{Mempool, MempoolTransaction, Validator};
 use hotstuff_p2p::{NetworkConfig, P2PNetwork};
+use hotstuff_primitives::ValidatorIndex;
 use hotstuff_rpc::{RpcConfig, RpcServer};
 use std::collections::HashMap;
 use tracing::info;

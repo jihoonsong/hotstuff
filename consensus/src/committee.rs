@@ -1,7 +1,8 @@
-use hotstuff_crypto::{PublicKey, ValidatorIndex};
+use hotstuff_crypto::PublicKey;
+use hotstuff_primitives::{Round, ValidatorIndex};
 use std::collections::HashMap;
 
-use crate::{LeaderElector, Round};
+use crate::LeaderElector;
 
 pub struct Committee<L>
 where

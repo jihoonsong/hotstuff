@@ -14,5 +14,3 @@ pub use hotstuff::HotStuff;
 pub use leader_elector::{LeaderElector, RoundRobinLeaderElector};
 pub use message::{HotStuffMessage, HotStuffMessageHandler};
 pub use timeout::Timeout;
-
-pub(crate) use types::{BlockHash, Digest, Round};

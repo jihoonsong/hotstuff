@@ -10,6 +10,7 @@ hotstuff-consensus = { workspace = true }
 hotstuff-crypto = { workspace = true }
 hotstuff-mempool = { workspace = true }
 hotstuff-p2p = { workspace = true }
+hotstuff-primitives = { workspace = true }
 hotstuff-rpc = { workspace = true }
 
 serde = { version = "1", features = ["derive"] }

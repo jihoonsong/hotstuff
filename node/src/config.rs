@@ -1,7 +1,8 @@
 use base64::prelude::{Engine, BASE64_STANDARD};
 use hotstuff_consensus::HotStuffConfig;
-use hotstuff_crypto::{PublicKey, SecretKey, ValidatorIndex};
+use hotstuff_crypto::{PublicKey, SecretKey};
 use hotstuff_p2p::NetworkConfig;
+use hotstuff_primitives::ValidatorIndex;
 use hotstuff_rpc::RpcConfig;
 use serde::Deserialize;
 use std::collections::HashMap;
@@ -43,7 +44,7 @@ impl NodeConfig {
             .iter()
             .map(|c| PublicKey::new(BASE64_STANDARD.decode(c).unwrap().try_into().unwrap()))
             .enumerate()
-            .map(|(i, pk)| (pk, i))
+            .map(|(i, pk)| (pk, i as ValidatorIndex))
             .collect()
     }
 

@@ -11,7 +11,7 @@ mod types;
 
 pub use config::NetworkConfig;
 pub use handshake::Handshake;
-pub use message::{Decodable, Encodable, NetworkAction, NetworkMessage, NetworkMessageHandler};
+pub use message::{NetworkAction, NetworkMessage, NetworkMessageHandler};
 pub use network::P2PNetwork;
 
 pub(crate) use config::{DialerConfig, ListenerConfig, PeerManagerConfig};

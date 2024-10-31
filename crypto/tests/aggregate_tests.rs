@@ -11,7 +11,7 @@ fn test_aggregate_signatures() {
     let mut signatures = HashMap::new();
     for (i, keypair) in keypairs.iter().enumerate() {
         let signature = keypair.sign(message.clone());
-        signatures.insert(i, signature);
+        signatures.insert(i as u64, signature);
     }
 
     let result = aggregator.aggregate(signatures);
@@ -28,7 +28,7 @@ fn test_aggregate_signatures_insufficient() {
     let mut signatures = HashMap::new();
     for (i, keypair) in keypairs.iter().take(1).enumerate() {
         let signature = keypair.sign(message.clone());
-        signatures.insert(i, signature);
+        signatures.insert(i as u64, signature);
     }
 
     let result = aggregator.aggregate(signatures);
@@ -48,7 +48,7 @@ fn test_aggregate_signatures_wrong_id() {
     for (i, keypair) in keypairs.iter().enumerate() {
         let signature = keypair.sign(message.clone());
         // Insert the signature with the wrong ID
-        signatures.insert((i + 1) % 3, signature);
+        signatures.insert(((i + 1) % 3) as u64, signature);
     }
 
     let result = aggregator.aggregate(signatures);

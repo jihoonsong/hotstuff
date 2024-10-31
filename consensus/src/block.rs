@@ -1,8 +1,7 @@
 use hotstuff_crypto::PublicKey;
 use hotstuff_mempool::Transaction;
+use hotstuff_primitives::Round;
 use serde::{Deserialize, Serialize};
-
-use crate::Round;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Block<T> {
