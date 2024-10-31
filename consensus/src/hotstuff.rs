@@ -9,7 +9,8 @@ use tokio::{
 use tracing::info;
 
 use crate::{
-    Block, HotStuffConfig, HotStuffMessage, HotStuffMessageHandler, LeaderElector, Round, Timeout,
+    Block, Committee, HotStuffConfig, HotStuffMessage, HotStuffMessageHandler, LeaderElector,
+    Round, Timeout,
 };
 
 pub struct HotStuff<T, P, L>
@@ -23,7 +24,7 @@ where
     mempool: Arc<P>,
     to_network: Option<mpsc::Sender<NetworkAction>>,
     timeout: Timeout,
-    leader_elector: L,
+    committee: Committee<L>,
     identity: PublicKey,
     round: Round,
 }
@@ -34,7 +35,12 @@ where
     P: TransactionPoolExt<Transaction = T>,
     L: LeaderElector,
 {
-    pub fn new(config: HotStuffConfig, mempool: P, leader_elector: L, identity: PublicKey) -> Self {
+    pub fn new(
+        config: HotStuffConfig,
+        mempool: P,
+        committee: Committee<L>,
+        identity: PublicKey,
+    ) -> Self {
         let (to_hotstuff, from_hotstuff) = mpsc::channel(config.mailbox_size);
         let handler = HotStuffMessageHandler { to_hotstuff };
         let timeout = Timeout::new(config.timeout);
@@ -46,7 +52,7 @@ where
             mempool: Arc::new(mempool),
             to_network: None,
             timeout,
-            leader_elector,
+            committee,
             identity,
             round,
         }
@@ -58,7 +64,7 @@ where
 
         // Reset timer and propose a block if we are the leader.
         self.timeout.reset();
-        if self.identity == self.leader_elector.leader(self.round) {
+        if self.identity == self.committee.leader(self.round) {
             self.propose().await;
         }
         // Now we are guaranteed to make a progress.

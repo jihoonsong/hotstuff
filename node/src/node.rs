@@ -1,15 +1,16 @@
-use hotstuff_consensus::{HotStuff, HotStuffConfig, RoundRobinLeaderElector};
-use hotstuff_crypto::PublicKey;
+use hotstuff_consensus::{Committee, HotStuff, HotStuffConfig, RoundRobinLeaderElector};
+use hotstuff_crypto::{PublicKey, ValidatorIndex};
 use hotstuff_mempool::{Mempool, MempoolTransaction, Validator};
 use hotstuff_p2p::{NetworkConfig, P2PNetwork};
 use hotstuff_rpc::{RpcConfig, RpcServer};
+use std::collections::HashMap;
 use tracing::info;
 
 use crate::NodeConfig;
 
 pub struct Node {
     identity: PublicKey,
-    committee: Vec<PublicKey>,
+    committee: HashMap<PublicKey, ValidatorIndex>,
     hotstuff_config: HotStuffConfig,
     rpc_config: RpcConfig,
     network_config: NetworkConfig,
@@ -31,14 +32,17 @@ impl Node {
         let validator = Validator::<MempoolTransaction>::default();
         let mempool = Mempool::<MempoolTransaction, Validator<MempoolTransaction>>::new(validator);
 
-        // Create a leader elector.
-        let leader_elector = RoundRobinLeaderElector::new(self.committee);
+        // Create the committee.
+        let committee = Committee::new(
+            self.committee.clone(),
+            RoundRobinLeaderElector::new(self.committee.keys().cloned().collect()),
+        );
 
         // Create a HotStuff consensus protocol.
         let mut hotstuff = HotStuff::new(
             self.hotstuff_config,
             mempool,
-            leader_elector,
+            committee,
             self.identity.clone(),
         );
         let hotstuff_handler = hotstuff.handler();
