@@ -1,6 +1,6 @@
 use base64::prelude::{Engine, BASE64_STANDARD};
 use hotstuff_consensus::HotStuffConfig;
-use hotstuff_crypto::{PublicKey, ValidatorIndex};
+use hotstuff_crypto::{PublicKey, SecretKey, ValidatorIndex};
 use hotstuff_p2p::NetworkConfig;
 use hotstuff_rpc::RpcConfig;
 use serde::Deserialize;
@@ -8,7 +8,8 @@ use std::collections::HashMap;
 
 #[derive(Debug, Deserialize)]
 pub struct NodeConfig {
-    pub identity: String,
+    pub public_key: String,
+    pub secret_key: String,
     pub committee: Vec<String>,
     pub hotstuff: HotStuffConfig,
     pub rpc: RpcConfig,
@@ -16,10 +17,20 @@ pub struct NodeConfig {
 }
 
 impl NodeConfig {
-    pub(crate) fn identity(&self) -> PublicKey {
+    pub(crate) fn public_key(&self) -> PublicKey {
         PublicKey::new(
             BASE64_STANDARD
-                .decode(&self.identity)
+                .decode(&self.public_key)
+                .unwrap()
+                .try_into()
+                .unwrap(),
+        )
+    }
+
+    pub(crate) fn secret_key(&self) -> SecretKey {
+        SecretKey::new(
+            BASE64_STANDARD
+                .decode(&self.secret_key)
                 .unwrap()
                 .try_into()
                 .unwrap(),

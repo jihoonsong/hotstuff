@@ -1,4 +1,4 @@
-use hotstuff_crypto::PublicKey;
+use hotstuff_crypto::{PublicKey, Signer};
 use hotstuff_mempool::{Transaction, TransactionPoolExt};
 use hotstuff_p2p::{Encodable, NetworkAction};
 use std::sync::Arc;
@@ -24,9 +24,10 @@ where
     mempool: Arc<P>,
     to_network: Option<mpsc::Sender<NetworkAction>>,
     timeout: Timeout,
+    round: Round,
     committee: Committee<L>,
     identity: PublicKey,
-    round: Round,
+    signer: Signer,
 }
 
 impl<T, P, L> HotStuff<T, P, L>
@@ -40,6 +41,7 @@ where
         mempool: P,
         committee: Committee<L>,
         identity: PublicKey,
+        signer: Signer,
     ) -> Self {
         let (to_hotstuff, from_hotstuff) = mpsc::channel(config.mailbox_size);
         let handler = HotStuffMessageHandler { to_hotstuff };
@@ -52,9 +54,10 @@ where
             mempool: Arc::new(mempool),
             to_network: None,
             timeout,
+            round,
             committee,
             identity,
-            round,
+            signer,
         }
     }
 
