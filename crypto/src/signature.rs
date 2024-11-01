@@ -1,7 +1,7 @@
 use blsttc::{SignatureShare, SIG_SIZE};
 use serde::{Deserialize, Serialize};
 
-use crate::public_key::PublicKey;
+use crate::PublicKey;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct Signature(pub(crate) SignatureShare);

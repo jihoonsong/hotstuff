@@ -1,7 +1,7 @@
 use parking_lot::RwLock;
 use std::{collections::HashSet, future::Future, hash::Hash};
 
-use crate::{error::MempoolError, Transaction, TransactionValidationResult, TransactionValidator};
+use crate::{MempoolError, Transaction, TransactionValidationResult, TransactionValidator};
 
 pub struct Mempool<T, V>
 where

@@ -2,8 +2,7 @@ use blsttc::{Error, PublicKeySet};
 use hotstuff_primitives::ValidatorIndex;
 use std::collections::HashMap;
 
-use crate::public_key::PublicKey;
-use crate::signature::Signature;
+use crate::{PublicKey, Signature};
 
 pub struct Aggregator(PublicKeySet);
 

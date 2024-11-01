@@ -10,7 +10,7 @@ mod peer_manager;
 mod types;
 
 pub use config::NetworkConfig;
-pub use handshake::Handshake;
+pub use handshake::{Handshake, HandshakeMessage};
 pub use message::{NetworkAction, NetworkMessage, NetworkMessageHandler};
 pub use network::P2PNetwork;
 
