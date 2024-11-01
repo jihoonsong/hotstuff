@@ -1,15 +1,8 @@
 use hotstuff_crypto::PublicKey;
+use hotstuff_primitives::{Decodable, Encodable};
 use std::{fmt::Debug, future::Future, net::SocketAddr};
 use tokio::{net::TcpStream, sync::oneshot};
 use tokio_util::bytes::Bytes;
-
-pub trait Encodable {
-    fn encode(self) -> Bytes;
-}
-
-pub trait Decodable {
-    fn decode(data: Bytes) -> Self;
-}
 
 pub trait NetworkMessage: Encodable + Decodable + Send + Sync + 'static {}
 

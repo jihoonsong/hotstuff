@@ -1,6 +1,5 @@
 use hotstuff_crypto::PublicKey;
-
-use crate::Round;
+use hotstuff_primitives::Round;
 
 pub trait LeaderElector {
     fn leader(&self, round: Round) -> PublicKey;

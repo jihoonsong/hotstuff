@@ -2,11 +2,13 @@
 nodes = ["127.0.0.1:50011", "127.0.0.1:50012", "127.0.0.1:50013", "127.0.0.1:50014"]
 
 [[nodes]]
-identity = "i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX"
+public_key = "i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX"
+secret_key = "Z83efxRRrF26MRgUwPbtEB116kTVJuRJ3kCsUyXTPsU="
 committee = ["i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX",
              "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18",
              "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy",
              "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy"]
+aggregator = "g5n3878x7Qsty+ovOylIg5+nlapAz1iPkCwraO+KoPPmGtE3ntVFCfIeBnpQnl29hLf/ONxubzdSsKCW4QAEFYPVlqHr0CpampNGTnvtGSDuYNF4ke7pxoCgKggZOm5irlkBsJJ8pr/q0Qq5yCh77ox3Sg4pJhoitGis5x8XLXUX/+lCujovWoEJk/yoaqjn"
 hotstuff.mailbox_size = 256
 hotstuff.timeout = 5000
 rpc.address = "127.0.0.1:50011"
@@ -20,11 +22,13 @@ network.listener.address = "127.0.0.1:30011"
 network.mailbox_size = 256
 
 [[nodes]]
-identity = "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18"
+public_key = "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18"
+secret_key = "CiIwL90zs9hzJFT0UjnhXtENobj/EE0sTR3ZCMVEtLo="
 committee = ["i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX",
              "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18",
              "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy",
              "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy"]
+aggregator = "g5n3878x7Qsty+ovOylIg5+nlapAz1iPkCwraO+KoPPmGtE3ntVFCfIeBnpQnl29hLf/ONxubzdSsKCW4QAEFYPVlqHr0CpampNGTnvtGSDuYNF4ke7pxoCgKggZOm5irlkBsJJ8pr/q0Qq5yCh77ox3Sg4pJhoitGis5x8XLXUX/+lCujovWoEJk/yoaqjn"
 hotstuff.mailbox_size = 256
 hotstuff.timeout = 5000
 rpc.address = "127.0.0.1:50012"
@@ -38,11 +42,13 @@ network.listener.address = "127.0.0.1:30012"
 network.mailbox_size = 256
 
 [[nodes]]
-identity = "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy"
+public_key = "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy"
+secret_key = "E8MbhDO6hjtgw1RZKTfsAU9muGgtbDHnz3c8K5lBOwM="
 committee = ["i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX",
              "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18",
              "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy",
              "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy"]
+aggregator = "g5n3878x7Qsty+ovOylIg5+nlapAz1iPkCwraO+KoPPmGtE3ntVFCfIeBnpQnl29hLf/ONxubzdSsKCW4QAEFYPVlqHr0CpampNGTnvtGSDuYNF4ke7pxoCgKggZOm5irlkBsJJ8pr/q0Qq5yCh77ox3Sg4pJhoitGis5x8XLXUX/+lCujovWoEJk/yoaqjn"
 hotstuff.mailbox_size = 256
 hotstuff.timeout = 5000
 rpc.address = "127.0.0.1:50013"
@@ -56,11 +62,13 @@ network.listener.address = "127.0.0.1:30013"
 network.mailbox_size = 256
 
 [[nodes]]
-identity = "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy"
+public_key = "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy"
+secret_key = "EML5KO5Ipj5P1D47PE808kTDik9gPDZ9ZUzVvKHI0Z8="
 committee = ["i2fMEOfoXEFOtOl9txFy8WRLPJIeEQZ5rYX9s/KY9YxTVg9/9etxyCIrfdPQCRkX",
              "uVddny195j67qlZjkqy+bAIphC7w6/QPyQGpdyJwZp19yG9OXZKFtQEkmQESZa18",
              "mIagyVMaP3iZTJ1oqv07xpbeEUDYNO3GKg+HLgrJh4LQHB0bMEeOGyw4MNCb3nmy",
              "lKu+NQoV+I7bhzRqUiQ6b6TPP1eB6L2mx6KAploebqto/s9MSQ6aPRelOZeQ3Gyy"]
+aggregator = "g5n3878x7Qsty+ovOylIg5+nlapAz1iPkCwraO+KoPPmGtE3ntVFCfIeBnpQnl29hLf/ONxubzdSsKCW4QAEFYPVlqHr0CpampNGTnvtGSDuYNF4ke7pxoCgKggZOm5irlkBsJJ8pr/q0Qq5yCh77ox3Sg4pJhoitGis5x8XLXUX/+lCujovWoEJk/yoaqjn"
 hotstuff.mailbox_size = 256
 hotstuff.timeout = 5000
 rpc.address = "127.0.0.1:50014"

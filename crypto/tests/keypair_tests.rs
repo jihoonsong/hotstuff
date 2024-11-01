@@ -7,5 +7,5 @@ fn test_sign_and_verify() {
     let keypair = &keypairs[0];
     let message = b"test message";
     let signature = keypair.sign(message.to_vec());
-    assert!(keypair.pk.verify(&signature, message.to_vec()));
+    assert!(signature.verify(&keypair.pk, message.to_vec()));
 }

@@ -4,8 +4,8 @@ use tokio::sync::mpsc;
 use tracing::info;
 
 use crate::{
-    message::{NetworkAction, NetworkMessage, NetworkMessageHandler},
-    Dialer, Listener, NetworkConfig, PeerManager, PeerManagerMessage,
+    Dialer, Listener, NetworkAction, NetworkConfig, NetworkMessage, NetworkMessageHandler,
+    PeerManager, PeerManagerMessage,
 };
 
 pub struct P2PNetwork<M, H>

@@ -1,15 +1,19 @@
-use hotstuff_consensus::{HotStuff, HotStuffConfig, RoundRobinLeaderElector};
-use hotstuff_crypto::PublicKey;
+use hotstuff_consensus::{Committee, HotStuff, HotStuffConfig, RoundRobinLeaderElector};
+use hotstuff_crypto::{Aggregator, PublicKey, SecretKey, Signer};
 use hotstuff_mempool::{Mempool, MempoolTransaction, Validator};
 use hotstuff_p2p::{NetworkConfig, P2PNetwork};
+use hotstuff_primitives::ValidatorIndex;
 use hotstuff_rpc::{RpcConfig, RpcServer};
+use std::collections::HashMap;
 use tracing::info;
 
 use crate::NodeConfig;
 
 pub struct Node {
-    identity: PublicKey,
-    committee: Vec<PublicKey>,
+    public_key: PublicKey,
+    secret_key: SecretKey,
+    committee: HashMap<PublicKey, ValidatorIndex>,
+    aggregator: Vec<u8>,
     hotstuff_config: HotStuffConfig,
     rpc_config: RpcConfig,
     network_config: NetworkConfig,
@@ -18,8 +22,10 @@ pub struct Node {
 impl Node {
     pub fn new(config: NodeConfig) -> Self {
         Self {
-            identity: config.identity(),
+            public_key: config.public_key(),
+            secret_key: config.secret_key(),
             committee: config.committee(),
+            aggregator: config.aggregator(),
             hotstuff_config: config.hotstuff,
             rpc_config: config.rpc,
             network_config: config.network,
@@ -27,34 +33,45 @@ impl Node {
     }
 
     pub async fn run(self) {
-        // Create a HotStuff mempool.
+        // Create the HotStuff mempool.
         let validator = Validator::<MempoolTransaction>::default();
         let mempool = Mempool::<MempoolTransaction, Validator<MempoolTransaction>>::new(validator);
 
-        // Create a leader elector.
-        let leader_elector = RoundRobinLeaderElector::new(self.committee);
+        // Create the committee.
+        let committee = Committee::new(
+            self.committee.clone(),
+            RoundRobinLeaderElector::new(self.committee.keys().cloned().collect()),
+        );
 
-        // Create a HotStuff consensus protocol.
+        // Create the signer.
+        let signer = Signer::new(self.secret_key);
+
+        // Create the signature aggregator.
+        let aggregator = Aggregator::new(self.aggregator);
+
+        // Create the HotStuff consensus protocol.
         let mut hotstuff = HotStuff::new(
             self.hotstuff_config,
             mempool,
-            leader_elector,
-            self.identity.clone(),
+            committee,
+            self.public_key.clone(),
+            signer,
+            aggregator,
         );
         let hotstuff_handler = hotstuff.handler();
         let hotstuff_mempool = hotstuff.mempool();
 
-        // Create a RPC server.
+        // Create the RPC server.
         let rpc_server = RpcServer::new(self.rpc_config, hotstuff_mempool)
             .build()
             .await
             .expect("Failed to build RPC server");
 
-        // Create a P2P network.
+        // Create the P2P network.
         let p2p_network = P2PNetwork::new(
             self.network_config,
             hotstuff_handler.clone(),
-            self.identity.clone(),
+            self.public_key.clone(),
         );
         let p2p_network_mailbox = p2p_network.mailbox();
 

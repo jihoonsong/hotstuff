@@ -13,8 +13,8 @@ use tokio_util::{
 use tracing::{debug, info};
 
 use crate::{
-    handshake::HandshakeMessage, Handshake, NetworkAction, NetworkMessage, NetworkMessageHandler,
-    Peer, PeerManagerConfig, PeerManagerMessage, Writer,
+    Handshake, HandshakeMessage, NetworkAction, NetworkMessage, NetworkMessageHandler, Peer,
+    PeerManagerConfig, PeerManagerMessage, Writer,
 };
 
 pub struct PeerManager<M, H>

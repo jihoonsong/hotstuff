@@ -6,6 +6,8 @@ rust-version.workspace = true
 license.workspace = true
 
 [dependencies]
+hotstuff-primitives = { workspace = true }
+
 serde = { version = "1", features = ["derive"] }
 blsttc = "8.0"
 hex = "0.4"

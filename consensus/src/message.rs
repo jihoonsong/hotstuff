@@ -1,15 +1,16 @@
 use hotstuff_mempool::Transaction;
-use hotstuff_p2p::{Decodable, Encodable, NetworkMessage, NetworkMessageHandler};
+use hotstuff_p2p::{NetworkMessage, NetworkMessageHandler};
+use hotstuff_primitives::{Decodable, Encodable};
 use serde::{Deserialize, Serialize};
 use tokio::sync::mpsc::{self, error::SendError};
 use tokio_util::bytes::Bytes;
 use tracing::info;
 
-use crate::Block;
+use crate::SignedBlock;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub enum HotStuffMessage<T> {
-    Proposal(Block<T>),
+    Proposal(SignedBlock<T>),
 }
 
 impl<T> NetworkMessage for HotStuffMessage<T> where T: Transaction {}

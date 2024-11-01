@@ -22,7 +22,7 @@ fn test_complete_scenario() {
     println!("Node 0 signature: {:?}", sig_0);
     signatures.insert(0, sig_0);
 
-    let result = aggregator.aggregate_signatures(signatures.clone());
+    let result = aggregator.aggregate(signatures.clone());
     assert!(result.is_err());
 
     // Step 3: Node 0 and Node 1 sign the message
@@ -32,7 +32,7 @@ fn test_complete_scenario() {
     signatures.insert(1, sig_1);
 
     let sig = aggregator
-        .aggregate_signatures(signatures.clone())
+        .aggregate(signatures.clone())
         .expect("not enough shares");
     println!("Combined signature: {:?}", sig);
 
@@ -47,7 +47,7 @@ fn test_complete_scenario() {
     signatures.insert(2, sig_2);
 
     let sig = aggregator
-        .aggregate_signatures(signatures)
+        .aggregate(signatures)
         .expect("not enough shares");
     let result = sig.verify(&aggregator.public_key(), msg.to_vec());
     assert!(result);

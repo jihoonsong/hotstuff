@@ -1,6 +1,7 @@
-use hotstuff_crypto::PublicKey;
+use hotstuff_crypto::{Aggregator, PublicKey, Signer};
 use hotstuff_mempool::{Transaction, TransactionPoolExt};
-use hotstuff_p2p::{Encodable, NetworkAction};
+use hotstuff_p2p::NetworkAction;
+use hotstuff_primitives::{Encodable, Round};
 use std::sync::Arc;
 use tokio::{
     sync::{mpsc, oneshot},
@@ -9,7 +10,8 @@ use tokio::{
 use tracing::info;
 
 use crate::{
-    Block, HotStuffConfig, HotStuffMessage, HotStuffMessageHandler, LeaderElector, Round, Timeout,
+    Committee, HotStuffConfig, HotStuffMessage, HotStuffMessageHandler, LeaderElector, Proposer,
+    SignedBlock, Timeout,
 };
 
 pub struct HotStuff<T, P, L>
@@ -23,9 +25,12 @@ where
     mempool: Arc<P>,
     to_network: Option<mpsc::Sender<NetworkAction>>,
     timeout: Timeout,
-    leader_elector: L,
-    identity: PublicKey,
     round: Round,
+    committee: Committee<L>,
+    identity: PublicKey,
+    proposer: Proposer<T, P>,
+    signer: Signer,
+    aggregator: Aggregator,
 }
 
 impl<T, P, L> HotStuff<T, P, L>
@@ -34,21 +39,33 @@ where
     P: TransactionPoolExt<Transaction = T>,
     L: LeaderElector,
 {
-    pub fn new(config: HotStuffConfig, mempool: P, leader_elector: L, identity: PublicKey) -> Self {
+    pub fn new(
+        config: HotStuffConfig,
+        mempool: P,
+        committee: Committee<L>,
+        identity: PublicKey,
+        signer: Signer,
+        aggregator: Aggregator,
+    ) -> Self {
         let (to_hotstuff, from_hotstuff) = mpsc::channel(config.mailbox_size);
         let handler = HotStuffMessageHandler { to_hotstuff };
+        let mempool = Arc::new(mempool);
         let timeout = Timeout::new(config.timeout);
         let round = Round::default();
+        let proposer = Proposer::new(identity.clone(), mempool.clone(), signer.clone());
 
         Self {
             from_hotstuff,
             handler,
-            mempool: Arc::new(mempool),
+            mempool,
             to_network: None,
             timeout,
-            leader_elector,
-            identity,
             round,
+            committee,
+            identity,
+            proposer,
+            signer,
+            aggregator,
         }
     }
 
@@ -58,7 +75,7 @@ where
 
         // Reset timer and propose a block if we are the leader.
         self.timeout.reset();
-        if self.identity == self.leader_elector.leader(self.round) {
+        if self.identity == self.committee.leader(self.round) {
             self.propose().await;
         }
         // Now we are guaranteed to make a progress.
@@ -109,23 +126,19 @@ where
     }
 
     async fn propose(&mut self) {
-        let block = Block::new(
-            self.identity.clone(),
-            self.round,
-            self.mempool.pending_transactions().await,
-        );
+        let signed_block = self.proposer.propose(self.round).await;
 
         self.to_network
             .as_mut()
             .unwrap()
             .send(NetworkAction::Broadcast {
-                message: HotStuffMessage::Proposal(block).encode(),
+                message: HotStuffMessage::Proposal(signed_block).encode(),
             })
             .await
             .unwrap();
     }
 
-    async fn handle_proposal(&self, block: Block<T>) {
+    async fn handle_proposal(&self, block: SignedBlock<T>) {
         info!("{}: Received a proposal {:?}", self.identity, block);
     }
 
